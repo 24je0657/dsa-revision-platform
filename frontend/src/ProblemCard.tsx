@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 type ProblemCardProps = {
+  slug: string
   title: string
   difficulty: string
   topic: string
@@ -16,6 +18,7 @@ function getDifficultyClass(difficulty: string) {
 }
 
 function ProblemCard({
+  slug,
   title,
   difficulty,
   topic,
@@ -44,12 +47,14 @@ function ProblemCard({
 
       <p>{description}</p>
 
+      {/* Progressive hints */}
       {hints.slice(0, hintsShown).map((hint, index) => (
         <p key={index}>
-          Hint {index + 1}: {hint}
+          <strong>Hint {index + 1}:</strong> {hint}
         </p>
       ))}
 
+      {/* Reveal hint button */}
       <button
         onClick={revealNextHint}
         disabled={hintsShown === hints.length}
@@ -59,9 +64,13 @@ function ProblemCard({
           : `Reveal Hint (${hintsShown + 1}/${hints.length})`}
       </button>
 
-      <button className="revise-button">
+      {/* Navigate to problem page */}
+      <Link
+        to={`/problem/${slug}`}
+        className="revise-button"
+      >
         Revise Now
-      </button>
+      </Link>
 
     </div>
   )

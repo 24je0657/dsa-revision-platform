@@ -5,8 +5,9 @@ type ProblemCardProps = {
   difficulty: string
   topic: string
   description: string
-  hint: string
+  hints: string[]
 }
+
 function getDifficultyClass(difficulty: string) {
   if (difficulty === "Easy") return "difficulty easy"
   if (difficulty === "Medium") return "difficulty medium"
@@ -19,29 +20,49 @@ function ProblemCard({
   difficulty,
   topic,
   description,
-  hint
+  hints
 }: ProblemCardProps) {
-  const [showHint, setShowHint] = useState(false)
+
+  const [hintsShown, setHintsShown] = useState(0)
+
+  function revealNextHint() {
+    setHintsShown(prev => Math.min(prev + 1, hints.length))
+  }
 
   return (
     <div className="card">
+
       <h2>{title}</h2>
 
-      <span className={getDifficultyClass(difficulty)}>{difficulty}</span>
+      <span className={getDifficultyClass(difficulty)}>
+        {difficulty}
+      </span>
 
-      <span className="topic">{topic}</span>
+      <span className="topic">
+        {topic}
+      </span>
 
       <p>{description}</p>
 
-      <button onClick={() => setShowHint(!showHint)}>
-        {showHint ? 'Hide Hint' : 'Reveal Hint'}
+      {hints.slice(0, hintsShown).map((hint, index) => (
+        <p key={index}>
+          Hint {index + 1}: {hint}
+        </p>
+      ))}
+
+      <button
+        onClick={revealNextHint}
+        disabled={hintsShown === hints.length}
+      >
+        {hintsShown === hints.length
+          ? "All Hints Revealed"
+          : `Reveal Hint (${hintsShown + 1}/${hints.length})`}
       </button>
 
-      {showHint && (
-        <p>{hint}</p>
-      )}
+      <button className="revise-button">
+        Revise Now
+      </button>
 
-      <button>Revise Now</button>
     </div>
   )
 }

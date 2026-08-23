@@ -7,28 +7,46 @@ const problems = [
     difficulty: "Medium",
     topic: "Searching",
     description: "Find an element efficiently in a sorted array.",
-    hint: "Think about checking the middle element and eliminating half the search space."
+    hints: [
+      "Think about checking the middle element.",
+      "Eliminate half of the search space after each comparison.",
+      "Continue until you find the target or the search space is empty."
+    ]
   },
+
   {
     title: "Two Sum",
     difficulty: "Easy",
     topic: "Arrays",
     description: "Find two numbers that add up to a given target.",
-    hint: "Can you remember numbers you have already seen?"
+    hints: [
+      "Think about what complement each number needs.",
+      "Can you remember numbers you have already seen?"
+    ]
   },
+
   {
     title: "Number of Islands",
     difficulty: "Medium",
     topic: "Graphs",
     description: "Count the number of connected islands in a grid.",
-    hint: "Think about DFS or BFS from every unvisited land cell."
+    hints: [
+      "Think about DFS or BFS from every unvisited land cell.",
+      "Mark visited land so you do not count the same island again.",
+      "One complete traversal covers one entire island."
+    ]
   },
+
   {
     title: "Longest Common Subsequence",
     difficulty: "Hard",
     topic: "Dynamic Programming",
     description: "Find the longest subsequence common to two strings.",
-    hint: "Try defining a DP state using positions in the two strings."
+    hints: [
+      "Try defining a DP state using positions in the two strings.",
+      "Consider what happens when the current characters are equal.",
+      "If they differ, consider the two possibilities of skipping one character."
+    ]
   }
 ]
 
@@ -42,7 +60,7 @@ function App() {
           difficulty={problem.difficulty}
           topic={problem.topic}
           description={problem.description}
-          hint={problem.hint}
+          hints={problem.hints}
         />
       ))}
     </div>

@@ -52,7 +52,7 @@ const problems = [
 
 function App() {
   return (
-    <div>
+    <div className="flex flex-wrap gap-6 p-6">
       {problems.map((problem) => (
         <ProblemCard
           key={problem.title}

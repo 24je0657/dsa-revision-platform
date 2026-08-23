@@ -7,6 +7,12 @@ type ProblemCardProps = {
   description: string
   hint: string
 }
+function getDifficultyClass(difficulty: string) {
+  if (difficulty === "Easy") return "difficulty easy"
+  if (difficulty === "Medium") return "difficulty medium"
+  if (difficulty === "Hard") return "difficulty hard"
+  return "difficulty"
+}
 
 function ProblemCard({
   title,
@@ -21,7 +27,7 @@ function ProblemCard({
     <div className="card">
       <h2>{title}</h2>
 
-      <span className="difficulty">{difficulty}</span>
+      <span className={getDifficultyClass(difficulty)}>{difficulty}</span>
 
       <span className="topic">{topic}</span>
 

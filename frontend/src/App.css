@@ -14,16 +14,22 @@
 /* Difficulty tag */
 .difficulty {
     display: inline-block;
-
     padding: 5px 10px;
-
     border-radius: 20px;
-
     color: white;
-    background: orange;
-
     font-size: 12px;
     font-weight: bold;
+}
+.difficulty.easy {
+    background: green;
+}
+
+.difficulty.medium {
+    background: orange;
+}
+
+.difficulty.hard {
+    background: red;
 }
 
 

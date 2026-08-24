@@ -1,4 +1,4 @@
-from models import Problem
+from schemas import Problem
 
 
 problems = [

@@ -1,7 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from data import problems
-from models import Problem
+from sqlalchemy.orm import Session
+
+from schemas import Problem
+from models import ProblemDB
+from database import get_db, Base, engine
 
 app = FastAPI()
 
@@ -19,5 +22,10 @@ def read_root():
 
 
 @app.get("/problems", response_model=list[Problem])
-def get_problems():
-    return problems
+def get_problems(db: Session = Depends(get_db)):
+    return db.query(ProblemDB).all()
+
+
+Base.metadata.create_all(bind=engine)
+
+

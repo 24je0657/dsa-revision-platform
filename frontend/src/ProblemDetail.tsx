@@ -10,6 +10,8 @@ function ProblemDetail() {
   const [loading, setLoading] = useState(true)
   const [hintsShown, setHintsShown] = useState(0)
   const [code, setCode] = useState('// Write your solution here\n')
+  const [verdict, setVerdict] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -33,6 +35,35 @@ function ProblemDetail() {
         setLoading(false)
       })
   }, [slug])
+async function handleSubmit() {
+  setSubmitting(true)
+  setVerdict(null)
+
+  try {
+    const res = await fetch('http://localhost:8000/submissions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        problem_id: problem!.id,
+        code: code,
+        language: 'cpp',
+      }),
+    })
+
+    if (!res.ok) {
+      throw new Error('Submission failed')
+    }
+
+    const data = await res.json()
+    setVerdict(data.verdict)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    setSubmitting(false)
+  }
+}
 
   if (loading) {
     return <p className="p-6">Loading...</p>
@@ -133,9 +164,19 @@ function ProblemDetail() {
         />
       </div>
 
-      <button className="mt-4 px-5 py-2 rounded bg-green-600 text-white">
-        Submit
-      </button>
+      <button
+  onClick={handleSubmit}
+  disabled={submitting}
+  className="mt-4 px-5 py-2 rounded bg-green-600 text-white disabled:bg-gray-400"
+>
+  {submitting ? 'Submitting...' : 'Submit'}
+</button>
+
+{verdict && (
+  <p className={`mt-4 font-bold ${verdict === 'Accepted' ? 'text-green-600' : 'text-red-600'}`}>
+    Verdict: {verdict}
+  </p>
+)}
 
     </div>
   )

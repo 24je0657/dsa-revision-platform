@@ -4,12 +4,16 @@ from pydantic import BaseModel
 
 
 class Problem(BaseModel):
+    id: int
     slug: str
     title: str
     difficulty: str
     topic: str
     description: str
     hints: list[str]
+
+    class Config:
+        from_attributes = True
 
 
 class SubmissionCreate(BaseModel):

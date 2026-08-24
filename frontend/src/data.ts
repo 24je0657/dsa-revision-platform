@@ -7,3 +7,12 @@ export type Problem = {
   description: string
   hints: string[]
 }
+
+export type SubmissionResult = {
+  id: number
+  problem_id: number
+  code: string
+  language: string
+  verdict: string
+  submitted_at: string
+}

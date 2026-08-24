@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Editor from '@monaco-editor/react'
-import type { Problem } from './data'
+import type { Problem, SubmissionResult } from './data'
 
 function ProblemDetail() {
   const { slug } = useParams()
@@ -12,11 +12,13 @@ function ProblemDetail() {
   const [code, setCode] = useState('// Write your solution here\n')
   const [verdict, setVerdict] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [submissions, setSubmissions] = useState<SubmissionResult[]>([])
 
   useEffect(() => {
     setLoading(true)
     setProblem(null)
     setHintsShown(0)
+    setSubmissions([])
 
     fetch(`http://localhost:8000/problems/${slug}`)
       .then((res) => {
@@ -35,35 +37,64 @@ function ProblemDetail() {
         setLoading(false)
       })
   }, [slug])
-async function handleSubmit() {
-  setSubmitting(true)
-  setVerdict(null)
 
-  try {
-    const res = await fetch('http://localhost:8000/submissions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        problem_id: problem!.id,
-        code: code,
-        language: 'cpp',
-      }),
-    })
+  const fetchSubmissions = async () => {
+    if (!problem) return
 
-    if (!res.ok) {
-      throw new Error('Submission failed')
+    try {
+      const res = await fetch(
+        `http://localhost:8000/problems/${problem.slug}/submissions`
+      )
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch submissions')
+      }
+
+      const data = await res.json()
+      setSubmissions(data)
+    } catch (error) {
+      console.error(error)
     }
-
-    const data = await res.json()
-    setVerdict(data.verdict)
-  } catch (error) {
-    console.error(error)
-  } finally {
-    setSubmitting(false)
   }
-}
+
+  useEffect(() => {
+    if (problem) {
+      fetchSubmissions()
+    }
+  }, [problem])
+
+  async function handleSubmit() {
+    setSubmitting(true)
+    setVerdict(null)
+
+    try {
+      const res = await fetch('http://localhost:8000/submissions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          problem_id: problem!.id,
+          code: code,
+          language: 'cpp',
+        }),
+      })
+
+      if (!res.ok) {
+        throw new Error('Submission failed')
+      }
+
+      const data = await res.json()
+
+      setVerdict(data.verdict)
+
+      await fetchSubmissions()
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   if (loading) {
     return <p className="p-6">Loading...</p>
@@ -165,18 +196,55 @@ async function handleSubmit() {
       </div>
 
       <button
-  onClick={handleSubmit}
-  disabled={submitting}
-  className="mt-4 px-5 py-2 rounded bg-green-600 text-white disabled:bg-gray-400"
->
-  {submitting ? 'Submitting...' : 'Submit'}
-</button>
+        onClick={handleSubmit}
+        disabled={submitting}
+        className="mt-4 px-5 py-2 rounded bg-green-600 text-white disabled:bg-gray-400"
+      >
+        {submitting ? 'Submitting...' : 'Submit'}
+      </button>
 
-{verdict && (
-  <p className={`mt-4 font-bold ${verdict === 'Accepted' ? 'text-green-600' : 'text-red-600'}`}>
-    Verdict: {verdict}
-  </p>
-)}
+      {verdict && (
+        <p
+          className={`mt-4 font-bold ${
+            verdict === 'Accepted'
+              ? 'text-green-600'
+              : 'text-red-600'
+          }`}
+        >
+          Verdict: {verdict}
+        </p>
+      )}
+
+      <h2 className="text-2xl font-bold mt-8">
+        Submission History
+      </h2>
+
+      <div className="mt-4">
+        {submissions.length === 0 && (
+          <p>No submissions yet.</p>
+        )}
+
+        {submissions.map((s) => (
+          <div
+            key={s.id}
+            className="p-3 mb-2 rounded bg-gray-100 flex justify-between"
+          >
+            <span>
+              {new Date(s.submitted_at).toLocaleString()}
+            </span>
+
+            <span
+              className={
+                s.verdict === 'Accepted'
+                  ? 'text-green-600 font-bold'
+                  : 'text-red-600 font-bold'
+              }
+            >
+              {s.verdict}
+            </span>
+          </div>
+        ))}
+      </div>
 
     </div>
   )

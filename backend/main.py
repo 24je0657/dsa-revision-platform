@@ -72,5 +72,23 @@ def create_submission(
     db.refresh(db_submission)
 
     return db_submission
+@app.get("/problems/{slug}/submissions", response_model=list[SubmissionResult])
+def get_submissions_for_problem(
+    slug: str,
+    db: Session = Depends(get_db)
+):
+    problem = db.query(ProblemDB).filter(ProblemDB.slug == slug).first()
 
+    if not problem:
+        raise HTTPException(
+            status_code=404,
+            detail="Problem not found"
+        )
+
+    return (
+        db.query(SubmissionDB)
+        .filter(SubmissionDB.problem_id == problem.id)
+        .order_by(SubmissionDB.submitted_at.desc())
+        .all()
+    )
 

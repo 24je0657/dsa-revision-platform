@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, String, ARRAY, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Text, ARRAY, ForeignKey, DateTime
 from sqlalchemy.sql import func
 from database import Base
-from sqlalchemy import Column, Integer, String, Text, ARRAY, ForeignKey, DateTime
 
 
 class ProblemDB(Base):
@@ -25,3 +24,11 @@ class SubmissionDB(Base):
     language = Column(String)
     verdict = Column(String)
     submitted_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class UserDB(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)

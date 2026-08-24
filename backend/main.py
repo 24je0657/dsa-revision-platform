@@ -7,6 +7,10 @@ from schemas import Problem, SubmissionCreate, SubmissionResult
 from models import ProblemDB, SubmissionDB
 from database import get_db, Base, engine
 
+from schemas import UserCreate, UserResponse, Token
+from models import UserDB
+from auth import hash_password, verify_password, create_access_token
+
 
 app = FastAPI()
 
@@ -92,3 +96,28 @@ def get_submissions_for_problem(
         .all()
     )
 
+
+
+@app.post("/signup", response_model=UserResponse)
+def signup(user: UserCreate, db: Session = Depends(get_db)):
+    existing = db.query(UserDB).filter(UserDB.email == user.email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    new_user = UserDB(
+        email=user.email,
+        hashed_password=hash_password(user.password),
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
+@app.post("/login", response_model=Token)
+def login(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = db.query(UserDB).filter(UserDB.email == user.email).first()
+    if not db_user or not verify_password(user.password, db_user.hashed_password):
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
+
+    token = create_access_token({"sub": db_user.email})
+    return {"access_token": token, "token_type": "bearer"}

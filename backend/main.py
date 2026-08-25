@@ -119,20 +119,19 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user
-
 @app.post("/login", response_model=Token)
 def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db)
+    user: UserCreate,
+    db: Session = Depends(get_db),
 ):
     db_user = (
         db.query(UserDB)
-        .filter(UserDB.email == form_data.username)
+        .filter(UserDB.email == user.email)
         .first()
     )
 
     if not db_user or not verify_password(
-        form_data.password,
+        user.password,
         db_user.hashed_password
     ):
         raise HTTPException(

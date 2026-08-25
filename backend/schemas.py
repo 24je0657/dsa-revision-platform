@@ -25,10 +25,14 @@ class SubmissionCreate(BaseModel):
 class SubmissionResult(BaseModel):
     id: int
     problem_id: int
+    user_id: int
     code: str
     language: str
     verdict: str
     submitted_at: datetime
+
+    class Config:
+        from_attributes = True
 
 class UserCreate(BaseModel):
     email: str

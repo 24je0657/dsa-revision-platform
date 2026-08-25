@@ -11,6 +11,9 @@ from schemas import UserCreate, UserResponse, Token
 from models import UserDB
 from auth import hash_password, verify_password, create_access_token
 
+from auth import get_current_user
+from fastapi.security import OAuth2PasswordRequestForm
+
 
 app = FastAPI()
 
@@ -50,11 +53,14 @@ Base.metadata.create_all(bind=engine)
 @app.post("/submissions", response_model=SubmissionResult)
 def create_submission(
     submission: SubmissionCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(get_current_user),
 ):
-    problem = db.query(ProblemDB).filter(
-        ProblemDB.id == submission.problem_id
-    ).first()
+    problem = (
+        db.query(ProblemDB)
+        .filter(ProblemDB.id == submission.problem_id)
+        .first()
+    )
 
     if not problem:
         raise HTTPException(
@@ -66,6 +72,7 @@ def create_submission(
 
     db_submission = SubmissionDB(
         problem_id=submission.problem_id,
+        user_id=current_user.id,
         code=submission.code,
         language=submission.language,
         verdict=verdict,
@@ -114,10 +121,30 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @app.post("/login", response_model=Token)
-def login(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(UserDB).filter(UserDB.email == user.email).first()
-    if not db_user or not verify_password(user.password, db_user.hashed_password):
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    db_user = (
+        db.query(UserDB)
+        .filter(UserDB.email == form_data.username)
+        .first()
+    )
 
-    token = create_access_token({"sub": db_user.email})
-    return {"access_token": token, "token_type": "bearer"}
+    if not db_user or not verify_password(
+        form_data.password,
+        db_user.hashed_password
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect email or password"
+        )
+
+    token = create_access_token({
+        "sub": db_user.email
+    })
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }

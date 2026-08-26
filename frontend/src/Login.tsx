@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from './AuthContext'
 
 function Login() {
@@ -8,7 +8,9 @@ function Login() {
   const [error, setError] = useState<string | null>(null)
 
   const navigate = useNavigate()
+  const location = useLocation()
   const { login } = useAuth()
+  
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -33,7 +35,9 @@ function Login() {
 
       login(data.access_token)
 
-      navigate('/')
+      const from = location.state?.from?.pathname || '/'
+
+      navigate(from,{replace:true})
     } catch (error) {
       console.error(error)
       setError('Unable to connect to the server')

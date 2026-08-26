@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text, ARRAY, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Text, ARRAY, ForeignKey, DateTime, UniqueConstraint
 from sqlalchemy.sql import func
 from database import Base
-
+from sqlalchemy import Float
 
 class ProblemDB(Base):
     __tablename__ = "problems"
@@ -34,3 +34,22 @@ class UserDB(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
 
+
+class ProgressDB(Base):
+    __tablename__ = "progress"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    problem_id = Column(Integer, ForeignKey("problems.id"), nullable=False)
+
+    last_attempted = Column(DateTime(timezone=True))
+    next_review_due = Column(DateTime(timezone=True))
+    interval_days = Column(Integer, default=1, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "problem_id",
+            name="uq_progress_user_problem"
+        ),
+    )

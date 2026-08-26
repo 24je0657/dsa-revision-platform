@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Editor from '@monaco-editor/react'
 import type { Problem, SubmissionResult } from './data'
+import { useAuth } from './AuthContext'
 
 function ProblemDetail() {
   const { slug } = useParams()
+  const { token } = useAuth()
 
   const [problem, setProblem] = useState<Problem | null>(null)
   const [loading, setLoading] = useState(true)
@@ -64,6 +66,10 @@ function ProblemDetail() {
   }, [problem])
 
   async function handleSubmit() {
+    if (!token) {
+      return
+    }
+
     setSubmitting(true)
     setVerdict(null)
 
@@ -72,6 +78,7 @@ function ProblemDetail() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           problem_id: problem!.id,
@@ -197,11 +204,23 @@ function ProblemDetail() {
 
       <button
         onClick={handleSubmit}
-        disabled={submitting}
+        disabled={submitting || !token}
         className="mt-4 px-5 py-2 rounded bg-green-600 text-white disabled:bg-gray-400"
       >
         {submitting ? 'Submitting...' : 'Submit'}
       </button>
+
+      {!token && (
+        <p className="mt-2 text-gray-600">
+          <Link
+            to="/login"
+            className="text-blue-600 hover:underline"
+          >
+            Log in
+          </Link>{' '}
+          to submit your solution.
+        </p>
+      )}
 
       {verdict && (
         <p

@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import Navbar from './Navbar'
+import ProtectedRoute from './ProtectedRoute'
 import ProblemList from './ProblemList'
 import ProblemDetail from './ProblemDetail'
 import Signup from './Signup'
@@ -12,7 +13,16 @@ function App() {
 
       <Routes>
         <Route path="/" element={<ProblemList />} />
-        <Route path="/problem/:slug" element={<ProblemDetail />} />
+
+        <Route
+          path="/problem/:slug"
+          element={
+            <ProtectedRoute>
+              <ProblemDetail />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
       </Routes>

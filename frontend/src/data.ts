@@ -19,3 +19,9 @@ export type SubmissionResult = {
   submitted_at: string
 }
 
+export type DueReview = {
+  problem: Problem
+  next_review_due: string
+  interval_days: number
+}
+

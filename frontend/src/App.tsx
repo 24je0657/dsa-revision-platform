@@ -5,6 +5,7 @@ import ProblemList from './ProblemList'
 import ProblemDetail from './ProblemDetail'
 import Signup from './Signup'
 import Login from './Login'
+import Reviews from './Reviews'
 
 function App() {
   return (
@@ -22,6 +23,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/reviews" element={<ProtectedRoute> <Reviews />
+        </ProtectedRoute>
+        }/>
 
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />

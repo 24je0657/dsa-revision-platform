@@ -18,14 +18,24 @@ function Navbar() {
 
       <div className="flex gap-4 items-center">
         {token ? (
-          <button onClick={handleLogout} className="hover:underline">
-            Log Out
-          </button>
+          <>
+            <Link to="/reviews" className="hover:underline">
+              Due for Review
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="hover:underline"
+            >
+              Log Out
+            </button>
+          </>
         ) : (
           <>
             <Link to="/login" className="hover:underline">
               Log In
             </Link>
+
             <Link to="/signup" className="hover:underline">
               Sign Up
             </Link>

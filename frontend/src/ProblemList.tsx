@@ -1,19 +1,28 @@
 import { useState, useEffect } from 'react'
 import type { Problem } from './data'
 import ProblemCard from './ProblemCard'
+import { useAuth } from './AuthContext'
 
 function ProblemList() {
+  const { token } = useAuth()
+
   const [problems, setProblems] = useState<Problem[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('http://localhost:8000/problems')
+    fetch('http://localhost:8000/problems', {
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : {},
+    })
       .then((res) => res.json())
       .then((data) => {
         setProblems(data)
         setLoading(false)
       })
-  }, [])
+  }, [token])
 
   if (loading) {
     return <p>Loading problems...</p>
@@ -30,6 +39,7 @@ function ProblemList() {
           topic={problem.topic}
           description={problem.description}
           hints={problem.hints}
+          nextReviewDue={problem.next_review_due}
         />
       ))}
     </div>

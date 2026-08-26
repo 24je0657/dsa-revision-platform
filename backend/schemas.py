@@ -48,3 +48,15 @@ class UserResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class DueReview(BaseModel):
+    problem: Problem
+    next_review_due: datetime
+    interval_days: int
+
+    class Config:
+        from_attributes = True
+
+class ProblemWithProgress(Problem):
+    next_review_due: datetime | None = None
+    interval_days: int | None = None

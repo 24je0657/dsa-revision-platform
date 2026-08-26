@@ -8,7 +8,9 @@ type ProblemCardProps = {
   topic: string
   description: string
   hints: string[]
+  nextReviewDue: string | null
 }
+
 
 function getDifficultyClass(difficulty: string) {
   if (difficulty === "Easy") return "difficulty easy"
@@ -23,8 +25,11 @@ function ProblemCard({
   difficulty,
   topic,
   description,
-  hints
+  hints,
+  nextReviewDue
 }: ProblemCardProps) {
+  const isDue = nextReviewDue !== null && new Date(nextReviewDue) <= new Date()
+  const neverAttempted = nextReviewDue === null
 
   const [hintsShown, setHintsShown] = useState(0)
 
@@ -44,7 +49,11 @@ function ProblemCard({
       <span className="topic">
         {topic}
       </span>
-
+      {isDue && (
+  <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+    Due for Review
+  </span>
+)}
       <p>{description}</p>
 
       {/* Progressive hints */}

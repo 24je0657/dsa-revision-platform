@@ -7,14 +7,16 @@ from schemas import Problem, SubmissionCreate, SubmissionResult
 from models import ProblemDB, SubmissionDB
 from database import get_db, Base, engine
 
-from schemas import UserCreate, UserResponse, Token
+from schemas import UserCreate, UserResponse, Token,DueReview
 from models import UserDB
 from auth import hash_password, verify_password, create_access_token
 
-from auth import get_current_user
-from fastapi.security import OAuth2PasswordRequestForm
+from auth import get_current_user, get_current_user_optional
 from datetime import datetime, timezone, timedelta
 from models import ProgressDB
+from schemas import ProblemWithProgress
+from typing import Optional
+from fastapi.security import OAuth2PasswordRequestForm
 
 
 app = FastAPI()
@@ -33,9 +35,38 @@ def read_root():
     return {"message": "DSA Revision Platform API is running"}
 
 
-@app.get("/problems", response_model=list[Problem])
-def get_problems(db: Session = Depends(get_db)):
-    return db.query(ProblemDB).all()
+
+@app.get("/problems", response_model=list[ProblemWithProgress])
+def get_problems(
+    db: Session = Depends(get_db),
+    current_user: Optional[UserDB] = Depends(get_current_user_optional),
+):
+    problems = db.query(ProblemDB).all()
+
+    progress_map = {}
+    if current_user:
+        progress_rows = (
+            db.query(ProgressDB)
+            .filter(ProgressDB.user_id == current_user.id)
+            .all()
+        )
+        progress_map = {p.problem_id: p for p in progress_rows}
+
+    result = []
+    for problem in problems:
+        progress = progress_map.get(problem.id)
+        result.append({
+            "id": problem.id,
+            "slug": problem.slug,
+            "title": problem.title,
+            "difficulty": problem.difficulty,
+            "topic": problem.topic,
+            "description": problem.description,
+            "hints": problem.hints,
+            "next_review_due": progress.next_review_due if progress else None,
+            "interval_days": progress.interval_days if progress else None,
+        })
+    return result
 
 
 @app.get("/problems/{slug}", response_model=Problem)
@@ -185,3 +216,32 @@ def login(
         "access_token": token,
         "token_type": "bearer"
     }
+
+@app.get("/reviews/due", response_model=list[DueReview])
+def get_due_reviews(
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(get_current_user),
+):
+    now = datetime.now(timezone.utc)
+
+    due_reviews = (
+        db.query(ProgressDB, ProblemDB)
+        .join(
+            ProblemDB,
+            ProgressDB.problem_id == ProblemDB.id,
+        )
+        .filter(
+            ProgressDB.user_id == current_user.id,
+            ProgressDB.next_review_due <= now,
+        )
+        .all()
+    )
+
+    return [
+        {
+            "problem": problem,
+            "next_review_due": progress.next_review_due,
+            "interval_days": progress.interval_days,
+        }
+        for progress, problem in due_reviews
+    ]

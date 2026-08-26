@@ -13,6 +13,8 @@ from auth import hash_password, verify_password, create_access_token
 
 from auth import get_current_user
 from fastapi.security import OAuth2PasswordRequestForm
+from datetime import datetime, timezone, timedelta
+from models import ProgressDB
 
 
 app = FastAPI()
@@ -50,6 +52,36 @@ def get_problem(slug: str, db: Session = Depends(get_db)):
 
 
 Base.metadata.create_all(bind=engine)
+
+def update_progress(db: Session, user_id: int, problem_id: int, verdict: str):
+    progress = (
+        db.query(ProgressDB)
+        .filter(ProgressDB.user_id == user_id, ProgressDB.problem_id == problem_id)
+        .first()
+    )
+
+    now = datetime.now(timezone.utc)
+
+    if progress is None:
+        interval = 1
+        progress = ProgressDB(
+            user_id=user_id,
+            problem_id=problem_id,
+            last_attempted=now,
+            interval_days=interval,
+            next_review_due=now + timedelta(days=interval),
+        )
+        db.add(progress)
+    else:
+        if verdict == "Accepted":
+            progress.interval_days = progress.interval_days * 2
+        else:
+            progress.interval_days = 1
+
+        progress.last_attempted = now
+        progress.next_review_due = now + timedelta(days=progress.interval_days)
+
+    db.commit()
 @app.post("/submissions", response_model=SubmissionResult)
 def create_submission(
     submission: SubmissionCreate,
@@ -81,6 +113,12 @@ def create_submission(
     db.add(db_submission)
     db.commit()
     db.refresh(db_submission)
+    update_progress(
+        db,
+        current_user.id,
+        submission.problem_id,
+        verdict,
+    )
 
     return db_submission
 @app.get("/problems/{slug}/submissions", response_model=list[SubmissionResult])

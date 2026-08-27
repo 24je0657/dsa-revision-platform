@@ -6,12 +6,12 @@ db = SessionLocal()
 
 for problem in problems:
     db_problem = ProblemDB(
-        slug=problem.slug,
-        title=problem.title,
-        difficulty=problem.difficulty,
-        topic=problem.topic,
-        description=problem.description,
-        hints=problem.hints,
+        slug=problem["slug"],
+        title=problem["title"],
+        difficulty=problem["difficulty"],
+        topic=problem["topic"],
+        description=problem["description"],
+        hints=problem["hints"],
     )
     db.add(db_problem)
 

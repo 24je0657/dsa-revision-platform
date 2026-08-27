@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import Editor from '@monaco-editor/react'
 import type { Problem, SubmissionResult } from './data'
 import { useAuth } from './AuthContext'
-
+import { API_URL } from './api'
 function ProblemDetail() {
   const { slug } = useParams()
   const { token } = useAuth()
@@ -22,7 +22,7 @@ function ProblemDetail() {
     setHintsShown(0)
     setSubmissions([])
 
-    fetch(`http://localhost:8000/problems/${slug}`)
+    fetch(`${API_URL}/${slug}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error('Problem not found')
@@ -45,7 +45,7 @@ function ProblemDetail() {
 
     try {
       const res = await fetch(
-        `http://localhost:8000/problems/${problem.slug}/submissions`
+        `${API_URL}/problems/${problem.slug}/submissions`
       )
 
       if (!res.ok) {
@@ -74,7 +74,7 @@ function ProblemDetail() {
     setVerdict(null)
 
     try {
-      const res = await fetch('http://localhost:8000/submissions', {
+      const res = await fetch(`${API_URL}/submissions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

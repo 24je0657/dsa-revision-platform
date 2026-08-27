@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import type { Problem } from './data'
 import ProblemCard from './ProblemCard'
 import { useAuth } from './AuthContext'
+import { API_URL } from './api'
 
 function ProblemList() {
   const { token } = useAuth()
@@ -10,7 +11,7 @@ function ProblemList() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('http://localhost:8000/problems', {
+    fetch(`${API_URL}/problems`, {
       headers: token
         ? {
             Authorization: `Bearer ${token}`,

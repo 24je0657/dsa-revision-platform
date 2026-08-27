@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
 import type { TopicAnalytics } from './data'
+import { API_URL } from './api'
 
 function Analytics() {
   const { token } = useAuth()
@@ -14,7 +15,7 @@ function Analytics() {
       return
     }
 
-    fetch('http://localhost:8000/analytics/topics', {
+    fetch(`${API_URL}/analytics/topics`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

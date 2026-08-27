@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
 import ProblemCard from './ProblemCard'
 import type {DueReview} from './data'
-
+import { API_URL } from './api'
 
 
 function Reviews() {
@@ -17,7 +17,7 @@ function Reviews() {
       return
     }
 
-    fetch('http://localhost:8000/reviews/due', {
+    fetch(`${API_URL}/reviews/due`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

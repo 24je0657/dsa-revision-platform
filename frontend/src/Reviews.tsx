@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
 import ProblemCard from './ProblemCard'
-import type { Problem ,DueReview} from './data'
+import type {DueReview} from './data'
 
 
 

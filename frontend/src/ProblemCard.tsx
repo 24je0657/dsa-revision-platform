@@ -29,7 +29,7 @@ function ProblemCard({
   nextReviewDue
 }: ProblemCardProps) {
   const isDue = nextReviewDue !== null && new Date(nextReviewDue) <= new Date()
-  const neverAttempted = nextReviewDue === null
+
 
   const [hintsShown, setHintsShown] = useState(0)
 

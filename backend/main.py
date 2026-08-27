@@ -1,22 +1,39 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+
 import random
 
-from schemas import Problem, SubmissionCreate, SubmissionResult
-from models import ProblemDB, SubmissionDB
+from datetime import datetime, timezone, timedelta
+
+from schemas import (
+    Problem,
+    SubmissionCreate,
+    SubmissionResult,
+    UserCreate,
+    UserResponse,
+    Token,
+    DueReview,
+    ProblemWithProgress,
+    TopicAnalytics,
+)
+
+from models import (
+    ProblemDB,
+    SubmissionDB,
+    UserDB,
+    ProgressDB,
+)
+
 from database import get_db, Base, engine
 
-from schemas import UserCreate, UserResponse, Token,DueReview
-from models import UserDB
-from auth import hash_password, verify_password, create_access_token
-
-from auth import get_current_user, get_current_user_optional
-from datetime import datetime, timezone, timedelta
-from models import ProgressDB
-from schemas import ProblemWithProgress
-from typing import Optional
-from fastapi.security import OAuth2PasswordRequestForm
+from auth import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    get_current_user,
+    get_current_user_optional,
+)
 
 
 app = FastAPI()
@@ -39,7 +56,7 @@ def read_root():
 @app.get("/problems", response_model=list[ProblemWithProgress])
 def get_problems(
     db: Session = Depends(get_db),
-    current_user: Optional[UserDB] = Depends(get_current_user_optional),
+    current_user: UserDB | None = Depends(get_current_user_optional),
 ):
     problems = db.query(ProblemDB).all()
 
@@ -245,3 +262,63 @@ def get_due_reviews(
         }
         for progress, problem in due_reviews
     ]
+
+@app.get("/analytics/topics", response_model=list[TopicAnalytics])
+def get_topic_analytics(
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(get_current_user),
+):
+    problems = db.query(ProblemDB).all()
+    total_per_topic: dict[str, int] = {}
+    for p in problems:
+        total_per_topic[p.topic] = total_per_topic.get(p.topic, 0) + 1
+
+    progress_rows = (
+        db.query(ProgressDB, ProblemDB.topic)
+        .join(ProblemDB, ProgressDB.problem_id == ProblemDB.id)
+        .filter(ProgressDB.user_id == current_user.id)
+        .all()
+    )
+    attempted_per_topic: dict[str, set[int]] = {}
+    for progress, topic in progress_rows:
+        attempted_per_topic.setdefault(topic, set()).add(progress.problem_id)
+
+    accepted_rows = (
+        db.query(SubmissionDB.problem_id, ProblemDB.topic)
+        .join(ProblemDB, SubmissionDB.problem_id == ProblemDB.id)
+        .filter(SubmissionDB.user_id == current_user.id, SubmissionDB.verdict == "Accepted")
+        .distinct()
+        .all()
+    )
+    accepted_per_topic: dict[str, set[int]] = {}
+    for problem_id, topic in accepted_rows:
+        accepted_per_topic.setdefault(topic, set()).add(problem_id)
+
+    results = []
+    for topic, total in total_per_topic.items():
+        attempted = len(attempted_per_topic.get(topic, set()))
+        accepted = len(accepted_per_topic.get(topic, set()))
+
+        coverage = (attempted / total * 100) if total > 0 else 0
+        acceptance_rate = (accepted / attempted * 100) if attempted > 0 else 0
+
+        qualifies = attempted >= 5 or coverage >= 30
+
+        if not qualifies:
+            status = "needs_more_practice"
+        elif acceptance_rate < 60:
+            status = "weak"
+        else:
+            status = "strong"
+
+        results.append({
+            "topic": topic,
+            "total_problems": total,
+            "attempted": attempted,
+            "accepted": accepted,
+            "coverage": round(coverage, 1),
+            "acceptance_rate": round(acceptance_rate, 1),
+            "status": status,
+        })
+
+    return results

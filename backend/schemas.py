@@ -60,3 +60,12 @@ class DueReview(BaseModel):
 class ProblemWithProgress(Problem):
     next_review_due: datetime | None = None
     interval_days: int | None = None
+
+class TopicAnalytics(BaseModel):
+    topic: str
+    total_problems: int
+    attempted: int
+    accepted: int
+    coverage: float
+    acceptance_rate: float
+    status: str

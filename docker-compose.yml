@@ -1,0 +1,38 @@
+services:
+
+  db:
+    image: postgres:16
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: dsa_platform
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d dsa_platform"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+
+    ports:
+      - "8000:8000"
+
+    environment:
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD}@db:5432/dsa_platform
+      SECRET_KEY: ${SECRET_KEY}
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

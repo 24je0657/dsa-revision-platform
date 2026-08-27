@@ -22,7 +22,7 @@ function ProblemDetail() {
     setHintsShown(0)
     setSubmissions([])
 
-    fetch(`${API_URL}/${slug}`)
+    fetch(`${API_URL}/problems/${slug}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error('Problem not found')

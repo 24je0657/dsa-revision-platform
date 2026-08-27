@@ -6,6 +6,7 @@ import ProblemDetail from './ProblemDetail'
 import Signup from './Signup'
 import Login from './Login'
 import Reviews from './Reviews'
+import Analytics from './Analytics'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/reviews" element={<ProtectedRoute> <Reviews />
         </ProtectedRoute>
         }/>
+        <Route path ="/analytics" element={<ProtectedRoute> <Analytics/></ProtectedRoute>}/>
 
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />

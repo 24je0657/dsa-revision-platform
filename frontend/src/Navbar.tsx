@@ -22,6 +22,9 @@ function Navbar() {
             <Link to="/reviews" className="hover:underline">
               Due for Review
             </Link>
+            <Link to="/analytics" className="hover:underline">
+            Analytics
+            </Link>
 
             <button
               onClick={handleLogout}

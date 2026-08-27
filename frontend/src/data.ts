@@ -25,3 +25,12 @@ export type DueReview = {
   interval_days: number
 }
 
+export type TopicAnalytics = {
+  topic: string
+  total_problems: number
+  attempted: number
+  accepted: number
+  coverage: number
+  acceptance_rate: number
+  status: string
+}

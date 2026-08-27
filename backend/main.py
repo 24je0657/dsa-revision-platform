@@ -25,7 +25,7 @@ from models import (
     ProgressDB,
 )
 
-from database import get_db, Base, engine
+from database import get_db
 
 from auth import (
     hash_password,
@@ -99,7 +99,7 @@ def get_problem(slug: str, db: Session = Depends(get_db)):
     return problem
 
 
-Base.metadata.create_all(bind=engine)
+
 
 def update_progress(db: Session, user_id: int, problem_id: int, verdict: str):
     progress = (

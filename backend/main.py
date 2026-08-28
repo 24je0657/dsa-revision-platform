@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 import random
+import re
+from schemas import ProblemCreate
 
 from datetime import datetime, timezone, timedelta
 
@@ -23,6 +25,7 @@ from models import (
     SubmissionDB,
     UserDB,
     ProgressDB,
+    UserProblemDB,
 )
 
 from database import get_db
@@ -322,3 +325,98 @@ def get_topic_analytics(
         })
 
     return results
+
+
+def slugify(title: str) -> str:
+    slug = title.lower().strip()
+    slug = re.sub(r'[^a-z0-9]+', '-', slug)
+    slug = slug.strip('-')
+    return slug
+
+@app.post("/problems", response_model=Problem)
+def create_problem(
+    problem_data: ProblemCreate,
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(get_current_user),
+):
+    # 1. Generate a URL-safe slug from the title
+    slug = slugify(problem_data.title)
+
+    # 2. Try to find an existing canonical problem.
+    # Prefer LeetCode URL when one is provided.
+    existing_problem = None
+
+    if problem_data.leetcode_url:
+        existing_problem = (
+            db.query(ProblemDB)
+            .filter(ProblemDB.leetcode_url == problem_data.leetcode_url)
+            .first()
+        )
+
+    # Fall back to slug if no matching URL was found.
+    if existing_problem is None:
+        existing_problem = (
+            db.query(ProblemDB)
+            .filter(ProblemDB.slug == slug)
+            .first()
+        )
+
+    # 3. Reuse the existing problem or create a new canonical one.
+    if existing_problem:
+        db_problem = existing_problem
+    else:
+        db_problem = ProblemDB(
+            slug=slug,
+            title=problem_data.title,
+            difficulty=problem_data.difficulty,
+            topic=problem_data.topic,
+            description=problem_data.description,
+            hints=problem_data.hints,
+            leetcode_url=problem_data.leetcode_url,
+        )
+        db.add(db_problem)
+        db.flush()
+
+    # 4. Check whether this problem is already in the user's library.
+    existing_user_problem = (
+        db.query(UserProblemDB)
+        .filter(
+            UserProblemDB.user_id == current_user.id,
+            UserProblemDB.problem_id == db_problem.id,
+        )
+        .first()
+    )
+
+    # 5. Add the library link if it doesn't already exist.
+    if existing_user_problem is None:
+        db.add(
+            UserProblemDB(
+                user_id=current_user.id,
+                problem_id=db_problem.id,
+            )
+        )
+
+    # 6. Optionally import the user's previous solution.
+    if problem_data.solution_code:
+        db_submission = SubmissionDB(
+            problem_id=db_problem.id,
+            user_id=current_user.id,
+            code=problem_data.solution_code,
+            language=problem_data.language or "cpp",
+            verdict="Imported",
+        )
+        db.add(db_submission)
+
+        update_progress(
+            db,
+            current_user.id,
+            db_problem.id,
+            "Imported",
+        )
+
+    # 7. Commit all changes as one transaction.
+    db.commit()
+    db.refresh(db_problem)
+
+    # 8. Return the canonical problem.
+    return db_problem

@@ -13,6 +13,7 @@ class ProblemDB(Base):
     topic = Column(String)
     description = Column(String)
     hints = Column(ARRAY(String))
+    leetcode_url = Column(String, nullable=True, index=True)
 
 
 class SubmissionDB(Base):
@@ -51,5 +52,21 @@ class ProgressDB(Base):
             "user_id",
             "problem_id",
             name="uq_progress_user_problem"
+        ),
+    )
+
+class UserProblemDB(Base):
+    __tablename__ = "user_problems"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    problem_id = Column(Integer, ForeignKey("problems.id"), nullable=False)
+    added_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "problem_id",
+            name="uq_user_problems_user_problem",
         ),
     )

@@ -9,11 +9,9 @@ class Problem(BaseModel):
     title: str
     difficulty: str
     topic: str
-    description: str
-    hints: list[str]
-
-    class Config:
-        from_attributes = True
+    description: str | None = None
+    hints: list[str] | None = None
+    leetcode_url: str | None = None
 
 
 class SubmissionCreate(BaseModel):
@@ -69,3 +67,13 @@ class TopicAnalytics(BaseModel):
     coverage: float
     acceptance_rate: float
     status: str
+
+class ProblemCreate(BaseModel):
+    title: str
+    leetcode_url: str | None = None
+    difficulty: str
+    topic: str
+    description: str | None = None
+    hints: list[str] | None = None
+    solution_code: str | None = None
+    language: str | None = None

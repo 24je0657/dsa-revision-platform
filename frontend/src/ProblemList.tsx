@@ -9,21 +9,36 @@ function ProblemList() {
 
   const [problems, setProblems] = useState<Problem[]>([])
   const [loading, setLoading] = useState(true)
+useEffect(() => {
+  fetch(`${API_URL}/problems`, {
+    headers: token
+      ? {
+          Authorization: `Bearer ${token}`,
+        }
+      : {},
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Failed to fetch problems: ${res.status}`)
+      }
 
-  useEffect(() => {
-    fetch(`${API_URL}/problems`, {
-      headers: token
-        ? {
-            Authorization: `Bearer ${token}`,
-          }
-        : {},
+      return res.json()
     })
-      .then((res) => res.json())
-      .then((data) => {
-        setProblems(data)
-        setLoading(false)
-      })
-  }, [token])
+    .then((data) => {
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid problems response')
+      }
+
+      setProblems(data)
+    })
+    .catch((error) => {
+      console.error(error)
+      setProblems([])
+    })
+    .finally(() => {
+      setLoading(false)
+    })
+}, [token])
 
   if (loading) {
     return <p>Loading problems...</p>

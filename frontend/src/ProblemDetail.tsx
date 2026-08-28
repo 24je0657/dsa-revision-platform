@@ -4,6 +4,7 @@ import Editor from '@monaco-editor/react'
 import type { Problem, SubmissionResult } from './data'
 import { useAuth } from './AuthContext'
 import { API_URL } from './api'
+
 function ProblemDetail() {
   const { slug } = useParams()
   const { token } = useAuth()
@@ -122,9 +123,11 @@ function ProblemDetail() {
     )
   }
 
+  const safeHints = problem.hints ?? []
+
   const revealNextHint = () => {
     setHintsShown((prev) =>
-      Math.min(prev + 1, problem.hints.length)
+      Math.min(prev + 1, safeHints.length)
     )
   }
 
@@ -152,34 +155,46 @@ function ProblemDetail() {
         </span>
       </div>
 
-      <p className="mt-4 text-lg">
-        {problem.description}
-      </p>
+      {problem.description && (
+        <p className="mt-4 text-lg">
+          {problem.description}
+        </p>
+      )}
 
       <h2 className="text-2xl font-bold mt-8">
         Hints
       </h2>
 
-      <div className="mt-4">
-        {problem.hints.slice(0, hintsShown).map((hint, index) => (
-          <p
-            key={index}
-            className="mb-3 p-3 rounded bg-gray-100"
-          >
-            <strong>Hint {index + 1}:</strong> {hint}
-          </p>
-        ))}
-      </div>
+      {safeHints.length === 0 ? (
+        <p className="mt-4 text-gray-600">
+          No hints available for this problem.
+        </p>
+      ) : (
+        <>
+          <div className="mt-4">
+            {safeHints
+              .slice(0, hintsShown)
+              .map((hint, index) => (
+                <p
+                  key={index}
+                  className="mb-3 p-3 rounded bg-gray-100"
+                >
+                  <strong>Hint {index + 1}:</strong> {hint}
+                </p>
+              ))}
+          </div>
 
-      <button
-        onClick={revealNextHint}
-        disabled={hintsShown === problem.hints.length}
-        className="mt-3 px-4 py-2 rounded bg-blue-600 text-white disabled:bg-gray-400"
-      >
-        {hintsShown === problem.hints.length
-          ? 'All Hints Revealed'
-          : `Reveal Hint (${hintsShown + 1}/${problem.hints.length})`}
-      </button>
+          <button
+            onClick={revealNextHint}
+            disabled={hintsShown === safeHints.length}
+            className="mt-3 px-4 py-2 rounded bg-blue-600 text-white disabled:bg-gray-400"
+          >
+            {hintsShown === safeHints.length
+              ? 'All Hints Revealed'
+              : `Reveal Hint (${hintsShown + 1}/${safeHints.length})`}
+          </button>
+        </>
+      )}
 
       <button
         className="revise-button ml-3"

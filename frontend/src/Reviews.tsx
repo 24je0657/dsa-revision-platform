@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
 import ProblemCard from './ProblemCard'
-import type {DueReview} from './data'
+import type { DueReview } from './data'
 import { API_URL } from './api'
-
 
 function Reviews() {
   const { token } = useAuth()
@@ -24,17 +23,23 @@ function Reviews() {
     })
       .then((res) => {
         if (!res.ok) {
-          throw new Error('Failed to fetch due reviews')
+          throw new Error(`Failed to fetch due reviews: ${res.status}`)
         }
 
         return res.json()
       })
       .then((data) => {
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid due reviews response')
+        }
+
         setDueReviews(data)
-        setLoading(false)
       })
       .catch((error) => {
         console.error(error)
+        setDueReviews([])
+      })
+      .finally(() => {
         setLoading(false)
       })
   }, [token])

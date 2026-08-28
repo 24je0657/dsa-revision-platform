@@ -22,17 +22,25 @@ function Analytics() {
     })
       .then((res) => {
         if (!res.ok) {
-          throw new Error('Failed to fetch topic analytics')
+          throw new Error(
+            `Failed to fetch topic analytics: ${res.status}`
+          )
         }
 
         return res.json()
       })
       .then((data) => {
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid topic analytics response')
+        }
+
         setAnalytics(data)
-        setLoading(false)
       })
       .catch((error) => {
         console.error(error)
+        setAnalytics([])
+      })
+      .finally(() => {
         setLoading(false)
       })
   }, [token])

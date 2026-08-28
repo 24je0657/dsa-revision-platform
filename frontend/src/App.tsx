@@ -14,7 +14,14 @@ function App() {
       <Navbar />
 
       <Routes>
-        <Route path="/" element={<ProblemList />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <ProblemList />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/problem/:slug"
@@ -24,12 +31,27 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/reviews" element={<ProtectedRoute> <Reviews />
-        </ProtectedRoute>
-        }/>
-        <Route path ="/analytics" element={<ProtectedRoute> <Analytics/></ProtectedRoute>}/>
+
+        <Route
+          path="/reviews"
+          element={
+            <ProtectedRoute>
+              <Reviews />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <Analytics />
+            </ProtectedRoute>
+          }
+        />
 
         <Route path="/signup" element={<Signup />} />
+
         <Route path="/login" element={<Login />} />
       </Routes>
     </>

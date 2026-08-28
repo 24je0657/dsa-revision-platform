@@ -56,37 +56,7 @@ def read_root():
 
 
 
-@app.get("/problems", response_model=list[ProblemWithProgress])
-def get_problems(
-    db: Session = Depends(get_db),
-    current_user: UserDB | None = Depends(get_current_user_optional),
-):
-    problems = db.query(ProblemDB).all()
 
-    progress_map = {}
-    if current_user:
-        progress_rows = (
-            db.query(ProgressDB)
-            .filter(ProgressDB.user_id == current_user.id)
-            .all()
-        )
-        progress_map = {p.problem_id: p for p in progress_rows}
-
-    result = []
-    for problem in problems:
-        progress = progress_map.get(problem.id)
-        result.append({
-            "id": problem.id,
-            "slug": problem.slug,
-            "title": problem.title,
-            "difficulty": problem.difficulty,
-            "topic": problem.topic,
-            "description": problem.description,
-            "hints": problem.hints,
-            "next_review_due": progress.next_review_due if progress else None,
-            "interval_days": progress.interval_days if progress else None,
-        })
-    return result
 
 
 @app.get("/problems/{slug}", response_model=Problem)
@@ -420,3 +390,40 @@ def create_problem(
 
     # 8. Return the canonical problem.
     return db_problem
+
+
+
+@app.get("/problems", response_model=list[ProblemWithProgress])
+def get_problems(
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(get_current_user),
+):
+    problems = (
+        db.query(ProblemDB)
+        .join(UserProblemDB, UserProblemDB.problem_id == ProblemDB.id)
+        .filter(UserProblemDB.user_id == current_user.id)
+        .all()
+    )
+
+    progress_rows = (
+        db.query(ProgressDB)
+        .filter(ProgressDB.user_id == current_user.id)
+        .all()
+    )
+    progress_map = {p.problem_id: p for p in progress_rows}
+
+    result = []
+    for problem in problems:
+        progress = progress_map.get(problem.id)
+        result.append({
+            "id": problem.id,
+            "slug": problem.slug,
+            "title": problem.title,
+            "difficulty": problem.difficulty,
+            "topic": problem.topic,
+            "description": problem.description,
+            "hints": problem.hints,
+            "next_review_due": progress.next_review_due if progress else None,
+            "interval_days": progress.interval_days if progress else None,
+        })
+    return result

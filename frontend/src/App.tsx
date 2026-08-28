@@ -7,6 +7,7 @@ import Signup from './Signup'
 import Login from './Login'
 import Reviews from './Reviews'
 import Analytics from './Analytics'
+import AddProblem from './AddProblem'
 
 function App() {
   return (
@@ -46,6 +47,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Analytics />
+            </ProtectedRoute>
+          }
+        />
+        <Route 
+          path="/add-problem"
+          element={
+            <ProtectedRoute>
+              <AddProblem/>
             </ProtectedRoute>
           }
         />

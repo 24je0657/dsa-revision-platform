@@ -4,6 +4,7 @@ import Editor from '@monaco-editor/react'
 import type { Problem, SubmissionResult } from './data'
 import { useAuth } from './AuthContext'
 import { API_URL } from './api'
+import { getDifficultyColor } from './utils'
 
 function ProblemDetail() {
   const { slug } = useParams()
@@ -112,20 +113,30 @@ function ProblemDetail() {
   }
 
   if (loading) {
-    return <p className="p-6">Loading...</p>
+    return (
+      <div className="mx-auto w-full max-w-3xl px-6 py-12">
+        <p className="font-mono text-sm text-muted">
+          loading_problem...
+        </p>
+      </div>
+    )
   }
 
   if (!problem) {
     return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold">Problem not found</h1>
+      <div className="mx-auto w-full max-w-3xl px-6 py-12">
+        <div className="rounded-xl border border-white/10 bg-surface p-6">
+          <p className="mb-4 font-mono text-sm text-weak">
+            error: problem_not_found
+          </p>
 
-        <Link
-          to="/"
-          className="text-blue-600 hover:underline"
-        >
-          Back to Problems
-        </Link>
+          <Link
+            to="/"
+            className="font-mono text-sm text-accent transition-colors hover:text-text"
+          >
+            ← back_to_problems
+          </Link>
+        </div>
       </div>
     )
   }
@@ -139,163 +150,203 @@ function ProblemDetail() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="mx-auto w-full max-w-3xl px-6 py-10">
 
       <Link
         to="/"
-        className="text-blue-600 hover:underline"
+        className="font-mono text-sm text-accent transition-colors hover:text-text"
       >
-        ← Back to Problems
+        ← back_to_problems
       </Link>
 
-      <h1 className="text-4xl font-bold mt-4">
-        {problem.title}
-      </h1>
+      <div className="mt-5">
+        <h1 className="font-display text-4xl font-semibold leading-tight tracking-tight text-text">
+          {problem.title}
+        </h1>
 
-      <div className="flex gap-3 mt-3">
-        <span className="difficulty">
-          {problem.difficulty}
-        </span>
+        <div className="mt-4 flex flex-wrap items-center gap-2 font-mono text-xs">
+          <span
+            className={`rounded-full border px-2.5 py-1 ${getDifficultyColor(
+              problem.difficulty
+            )}`}
+          >
+            {problem.difficulty.toLowerCase()}
+          </span>
 
-        <span className="topic">
-          {problem.topic}
-        </span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-muted">
+            {problem.topic.toLowerCase()}
+          </span>
+        </div>
+
+        {problem.description && (
+          <p className="mt-5 text-sm leading-7 text-muted">
+            {problem.description}
+          </p>
+        )}
       </div>
 
-      {problem.description && (
-        <p className="mt-4 text-lg">
-          {problem.description}
-        </p>
-      )}
+      <section className="mt-10">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="font-display text-xl font-semibold text-text">
+            Hints
+          </h2>
 
-      <h2 className="text-2xl font-bold mt-8">
-        Hints
-      </h2>
+          {safeHints.length > 0 && (
+            <span className="font-mono text-xs text-muted">
+              {hintsShown}/{safeHints.length}
+            </span>
+          )}
+        </div>
 
-      {safeHints.length === 0 ? (
-        <p className="mt-4 text-gray-600">
-          No hints available for this problem.
-        </p>
-      ) : (
-        <>
-          <div className="mt-4">
-            {safeHints
-              .slice(0, hintsShown)
-              .map((hint, index) => (
+        {safeHints.length === 0 ? (
+          <div className="mt-3 rounded-lg border border-white/10 bg-surface px-4 py-3">
+            <p className="text-sm text-muted">
+              No hints available for this problem.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="mt-4 flex flex-col gap-2">
+              {safeHints.slice(0, hintsShown).map((hint, index) => (
                 <p
                   key={index}
-                  className="mb-3 p-3 rounded bg-gray-100"
+                  className="rounded-lg border border-white/10 bg-surface px-4 py-3 text-sm leading-relaxed text-muted"
                 >
-                  <strong>Hint {index + 1}:</strong> {hint}
+                  <span className="mr-2 font-mono text-accent">
+                    #{index + 1}
+                  </span>
+                  {hint}
                 </p>
               ))}
-          </div>
+            </div>
 
-          <button
-            onClick={revealNextHint}
-            disabled={hintsShown === safeHints.length}
-            className="mt-3 px-4 py-2 rounded bg-blue-600 text-white disabled:bg-gray-400"
-          >
-            {hintsShown === safeHints.length
-              ? 'All Hints Revealed'
-              : `Reveal Hint (${hintsShown + 1}/${safeHints.length})`}
-          </button>
-        </>
-      )}
-
-      <h2 className="text-2xl font-bold mt-8">
-        Your Solution
-      </h2>
-
-      <div className="mt-4">
-        <label className="block font-medium mb-2">
-          Language
-        </label>
-
-        <select
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="cpp">C++</option>
-          <option value="python">Python</option>
-          <option value="java">Java</option>
-          <option value="javascript">JavaScript</option>
-        </select>
-      </div>
-
-      <div className="mt-4">
-        <Editor
-          height="400px"
-          language={language}
-          value={code}
-          onChange={(value) => setCode(value ?? '')}
-          theme="vs-dark"
-        />
-      </div>
-
-      <button
-        onClick={handleSubmit}
-        disabled={submitting || !token}
-        className="mt-4 px-5 py-2 rounded bg-green-600 text-white disabled:bg-gray-400"
-      >
-        {submitting ? 'Submitting...' : 'Submit'}
-      </button>
-
-      {!token && (
-        <p className="mt-2 text-gray-600">
-          <Link
-            to="/login"
-            className="text-blue-600 hover:underline"
-          >
-            Log in
-          </Link>{' '}
-          to submit your solution.
-        </p>
-      )}
-
-      {verdict && (
-        <p
-          className={`mt-4 font-bold ${
-            verdict === 'Accepted'
-              ? 'text-green-600'
-              : 'text-red-600'
-          }`}
-        >
-          Verdict: {verdict}
-        </p>
-      )}
-
-      <h2 className="text-2xl font-bold mt-8">
-        Submission History
-      </h2>
-
-      <div className="mt-4">
-        {submissions.length === 0 && (
-          <p>No submissions yet.</p>
-        )}
-
-        {submissions.map((s) => (
-          <div
-            key={s.id}
-            className="p-3 mb-2 rounded bg-gray-100 flex justify-between"
-          >
-            <span>
-              {new Date(s.submitted_at).toLocaleString()}
-            </span>
-
-            <span
-              className={
-                s.verdict === 'Accepted'
-                  ? 'text-green-600 font-bold'
-                  : 'text-red-600 font-bold'
-              }
+            <button
+              onClick={revealNextHint}
+              disabled={hintsShown === safeHints.length}
+              className="mt-4 font-mono text-sm text-accent transition-colors hover:text-text disabled:cursor-default disabled:text-muted"
             >
-              {s.verdict}
-            </span>
+              {hintsShown === safeHints.length
+                ? 'all_hints_revealed'
+                : `reveal_hint(${hintsShown + 1}/${safeHints.length})`}
+            </button>
+          </>
+        )}
+      </section>
+
+      <section className="mt-10">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="font-display text-xl font-semibold text-text">
+            Your Solution
+          </h2>
+
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="rounded-md border border-white/10 bg-surface px-3 py-2 font-mono text-sm text-text outline-none transition-colors focus:border-accent"
+          >
+            <option value="cpp">C++</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+            <option value="javascript">JavaScript</option>
+          </select>
+        </div>
+
+        <div className="mt-4 overflow-hidden rounded-xl border border-white/10">
+          <Editor
+            height="400px"
+            language={language}
+            value={code}
+            onChange={(value) => setCode(value ?? '')}
+            theme="vs-dark"
+          />
+        </div>
+
+        <div className="mt-4 flex items-center gap-4">
+          <button
+            onClick={handleSubmit}
+            disabled={submitting || !token}
+            className="rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-all hover:-translate-y-0.5 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {submitting ? 'Submitting…' : 'Submit'}
+          </button>
+
+          {!token && (
+            <p className="text-sm text-muted">
+              <Link
+                to="/login"
+                className="text-accent transition-colors hover:text-text hover:underline"
+              >
+                log_in
+              </Link>{' '}
+              to submit.
+            </p>
+          )}
+        </div>
+
+        {verdict && (
+          <div className="mt-4 rounded-lg border border-white/10 bg-surface px-4 py-3">
+            <p
+              className={`font-mono text-sm font-medium ${
+                verdict === 'Accepted'
+                  ? 'text-strong'
+                  : 'text-weak'
+              }`}
+            >
+              verdict: {verdict}
+            </p>
           </div>
-        ))}
-      </div>
+        )}
+      </section>
+
+      <section className="mt-10">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-xl font-semibold text-text">
+            Submission History
+          </h2>
+
+          <span className="font-mono text-xs text-muted">
+            {submissions.length} submission
+            {submissions.length === 1 ? '' : 's'}
+          </span>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-2">
+          {submissions.length === 0 ? (
+            <div className="rounded-lg border border-white/10 bg-surface px-4 py-3">
+              <p className="text-sm text-muted">
+                No submissions yet.
+              </p>
+            </div>
+          ) : (
+            submissions.map((s) => (
+              <div
+                key={s.id}
+                className="flex flex-col gap-2 rounded-lg border border-white/10 bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="font-mono text-xs text-muted">
+                    {new Date(s.submitted_at).toLocaleString()}
+                  </span>
+
+                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 font-mono text-[11px] text-muted">
+                    {s.language}
+                  </span>
+                </div>
+
+                <span
+                  className={`font-mono text-xs font-medium ${
+                    s.verdict === 'Accepted'
+                      ? 'text-strong'
+                      : 'text-weak'
+                  }`}
+                >
+                  {s.verdict}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
 
     </div>
   )

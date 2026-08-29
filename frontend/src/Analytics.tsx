@@ -3,6 +3,30 @@ import { useAuth } from './AuthContext'
 import type { TopicAnalytics } from './data'
 import { API_URL } from './api'
 
+function statusColor(status: string) {
+  if (status === 'strong') {
+    return 'text-strong bg-strong/10 border-strong/30'
+  }
+
+  if (status === 'weak') {
+    return 'text-weak bg-weak/10 border-weak/30'
+  }
+
+  return 'text-practice bg-practice/10 border-practice/30'
+}
+
+function barColor(status: string) {
+  if (status === 'strong') {
+    return 'bg-strong'
+  }
+
+  if (status === 'weak') {
+    return 'bg-weak'
+  }
+
+  return 'bg-practice'
+}
+
 function Analytics() {
   const { token } = useAuth()
 
@@ -46,58 +70,214 @@ function Analytics() {
   }, [token])
 
   if (loading) {
-    return <p className="p-6">Loading analytics...</p>
+    return (
+      <div className="mx-auto w-full max-w-5xl px-6 py-10">
+        <p className="font-mono text-sm text-muted">
+          loading_analytics...
+        </p>
+      </div>
+    )
   }
 
+  const strongCount = analytics.filter(
+    (item) => item.status === 'strong'
+  ).length
+
+  const weakCount = analytics.filter(
+    (item) => item.status === 'weak'
+  ).length
+
+  const practiceCount = analytics.filter(
+    (item) => item.status !== 'strong' && item.status !== 'weak'
+  ).length
+
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">
-        Weak Topic Analytics
-      </h1>
+    <div className="mx-auto w-full max-w-5xl px-6 py-10">
+
+      <div>
+        <p className="font-mono text-xs uppercase tracking-wider text-accent">
+          analytics
+        </p>
+
+        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-text">
+          Weak Topic Analytics
+        </h1>
+
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
+          Understand where your revision effort should go based on
+          coverage, attempts, and acceptance.
+        </p>
+      </div>
 
       {analytics.length === 0 ? (
-        <p>No topic analytics available yet.</p>
+        <div className="mt-8 rounded-xl border border-white/10 bg-surface p-6">
+          <p className="font-mono text-sm text-muted">
+            no_topic_analytics_available
+          </p>
+
+          <p className="mt-2 text-sm text-muted">
+            Add and revise some problems to build topic-level analytics.
+          </p>
+        </div>
       ) : (
-        <div className="flex flex-wrap gap-6">
-          {analytics.map((item) => {
-            let statusIcon = '🟡'
+        <>
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
 
-            if (item.status === 'weak') {
-              statusIcon = '🔴'
-            } else if (item.status === 'strong') {
-              statusIcon = '🟢'
-            }
+            <div className="rounded-xl border border-white/10 bg-surface p-5">
+              <p className="font-mono text-xs uppercase tracking-wide text-muted">
+                topics
+              </p>
 
-            return (
-              <div
-                key={item.topic}
-                className="card"
-              >
-                <h2 className="text-xl font-bold">
-                  {item.topic}
+              <p className="mt-2 font-display text-3xl font-semibold text-text">
+                {analytics.length}
+              </p>
+
+              <p className="mt-1 text-xs text-muted">
+                topics with available analytics
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-strong/20 bg-surface p-5">
+              <p className="font-mono text-xs uppercase tracking-wide text-muted">
+                strong
+              </p>
+
+              <p className="mt-2 font-display text-3xl font-semibold text-strong">
+                {strongCount}
+              </p>
+
+              <p className="mt-1 text-xs text-muted">
+                topics currently performing well
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-practice/20 bg-surface p-5">
+              <p className="font-mono text-xs uppercase tracking-wide text-muted">
+                needs_work
+              </p>
+
+              <p className="mt-2 font-display text-3xl font-semibold text-practice">
+                {weakCount + practiceCount}
+              </p>
+
+              <p className="mt-1 text-xs text-muted">
+                topics needing more revision
+              </p>
+            </div>
+
+          </div>
+
+          <div className="mt-10">
+
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <h2 className="font-display text-xl font-semibold text-text">
+                  Topic Performance
                 </h2>
 
-                <p>
-                  {statusIcon}{' '}
-                  {item.status.replaceAll('_', ' ')}
-                </p>
-
-                <p>
-                  Coverage: {item.coverage}%
-                </p>
-
-                <p>
-                  Acceptance Rate: {item.acceptance_rate}%
-                </p>
-
-                <p>
-                  Attempted: {item.attempted} / {item.total_problems}
+                <p className="mt-1 text-sm text-muted">
+                  Coverage and acceptance by topic.
                 </p>
               </div>
-            )
-          })}
-        </div>
+
+              <span className="font-mono text-xs text-muted">
+                {analytics.length} topics
+              </span>
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+
+              {analytics.map((item) => (
+                <div
+                  key={item.topic}
+                  className="rounded-xl border border-white/10 bg-surface p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-lg hover:shadow-black/20"
+                >
+                  <div className="flex items-start justify-between gap-4">
+
+                    <div className="min-w-0">
+                      <h3 className="font-display text-lg font-semibold text-text">
+                        {item.topic}
+                      </h3>
+
+                      <p className="mt-1 font-mono text-xs text-muted">
+                        attempted {item.attempted} / {item.total_problems}
+                      </p>
+                    </div>
+
+                    <span
+                      className={`shrink-0 rounded-full border px-2 py-1 font-mono text-[11px] font-medium ${statusColor(
+                        item.status
+                      )}`}
+                    >
+                      {item.status.replaceAll('_', ' ')}
+                    </span>
+
+                  </div>
+
+                  <div className="mt-5">
+
+                    <div className="flex items-center justify-between font-mono text-xs">
+                      <span className="text-muted">
+                        coverage
+                      </span>
+
+                      <span className="text-text">
+                        {item.coverage}%
+                      </span>
+                    </div>
+
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className={`h-full rounded-full transition-all ${barColor(
+                          item.status
+                        )}`}
+                        style={{
+                          width: `${Math.min(
+                            Math.max(item.coverage, 0),
+                            100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+
+                  </div>
+
+                  <div className="mt-4">
+
+                    <div className="flex items-center justify-between font-mono text-xs">
+                      <span className="text-muted">
+                        acceptance
+                      </span>
+
+                      <span className="text-text">
+                        {item.acceptance_rate}%
+                      </span>
+                    </div>
+
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className={`h-full rounded-full transition-all ${barColor(
+                          item.status
+                        )}`}
+                        style={{
+                          width: `${Math.min(
+                            Math.max(item.acceptance_rate, 0),
+                            100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+
+                  </div>
+
+                </div>
+              ))}
+
+            </div>
+          </div>
+        </>
       )}
+
     </div>
   )
 }

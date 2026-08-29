@@ -45,34 +45,95 @@ function Reviews() {
   }, [token])
 
   if (loading) {
-    return <p className="p-6">Loading reviews...</p>
+    return (
+      <div className="mx-auto w-full max-w-5xl px-6 py-10">
+        <p className="font-mono text-sm text-muted">
+          loading_reviews...
+        </p>
+      </div>
+    )
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">
-        Due for Review
-      </h1>
+    <div className="mx-auto w-full max-w-5xl px-6 py-10">
+
+      <div>
+        <p className="font-mono text-xs uppercase tracking-wider text-accent">
+          reviews
+        </p>
+
+        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-text">
+          Due for Review
+        </h1>
+
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
+          Problems whose scheduled review date has arrived.
+          Try them again before looking at your previous work.
+        </p>
+      </div>
 
       {dueReviews.length === 0 ? (
-        <p>
-          Nothing due for review right now — nice work!
-        </p>
-      ) : (
-        <div className="flex flex-wrap gap-6">
-          {dueReviews.map((item) => (
-            <ProblemCard
-              key={item.problem.slug}
-              slug={item.problem.slug}
-              title={item.problem.title}
-              difficulty={item.problem.difficulty}
-              topic={item.problem.topic}
-              description={item.problem.description}
-              hints={item.problem.hints}
-              nextReviewDue={item.next_review_due}
-            />
-          ))}
+        <div className="mt-8 rounded-xl border border-strong/20 bg-surface p-6">
+          <p className="font-display text-lg font-semibold text-strong">
+            Nothing due right now
+          </p>
+
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            Nice work. Your revision schedule is currently clear.
+          </p>
         </div>
+      ) : (
+        <>
+          <div className="mt-8 flex items-center justify-between gap-4 rounded-xl border border-practice/20 bg-surface px-5 py-4">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-wide text-muted">
+                due_now
+              </p>
+
+              <p className="mt-1 font-display text-2xl font-semibold text-text">
+                {dueReviews.length}
+              </p>
+            </div>
+
+            <p className="max-w-xs text-right text-sm text-muted">
+              Keep the previous solution hidden and solve from memory.
+            </p>
+          </div>
+
+          <div className="mt-8">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <h2 className="font-display text-xl font-semibold text-text">
+                  Your Reviews
+                </h2>
+
+                <p className="mt-1 text-sm text-muted">
+                  Problems ready for another independent attempt.
+                </p>
+              </div>
+
+              <span className="font-mono text-xs text-muted">
+                {dueReviews.length} problem
+                {dueReviews.length === 1 ? '' : 's'}
+              </span>
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {dueReviews.map((item) => (
+                <ProblemCard
+                  key={item.problem.slug}
+                  slug={item.problem.slug}
+                  title={item.problem.title}
+                  difficulty={item.problem.difficulty}
+                  topic={item.problem.topic}
+                  description={item.problem.description}
+                  hints={item.problem.hints}
+                  nextReviewDue={item.next_review_due}
+                />
+              ))}
+            </div>
+          </div>
+        </>
       )}
     </div>
   )

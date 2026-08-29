@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getDifficultyColor } from './utils'
 
 type ProblemCardProps = {
   slug: string
@@ -11,13 +12,6 @@ type ProblemCardProps = {
   nextReviewDue: string | null
 }
 
-function getDifficultyClass(difficulty: string) {
-  if (difficulty === 'Easy') return 'difficulty easy'
-  if (difficulty === 'Medium') return 'difficulty medium'
-  if (difficulty === 'Hard') return 'difficulty hard'
-  return 'difficulty'
-}
-
 function ProblemCard({
   slug,
   title,
@@ -27,13 +21,13 @@ function ProblemCard({
   hints,
   nextReviewDue,
 }: ProblemCardProps) {
+  const safeHints = hints ?? []
+
   const isDue =
     nextReviewDue !== null &&
     new Date(nextReviewDue) <= new Date()
 
   const [hintsShown, setHintsShown] = useState(0)
-
-  const safeHints = hints ?? []
 
   function revealNextHint() {
     setHintsShown((prev) =>
@@ -42,43 +36,70 @@ function ProblemCard({
   }
 
   return (
-    <div className="card">
-      <h2>{title}</h2>
+    <div className="w-full max-w-sm rounded-xl border border-white/10 bg-surface p-5 flex flex-col gap-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-black/20">
+      <div className="flex items-start justify-between gap-3">
+        <h2 className="min-w-0 font-display text-lg font-semibold leading-tight text-text">
+          {title}
+        </h2>
 
-      <span className={getDifficultyClass(difficulty)}>
-        {difficulty}
-      </span>
+        {isDue && (
+          <span className="shrink-0 rounded-full border border-practice/30 bg-practice/10 px-2 py-1 font-mono text-[11px] font-medium text-practice">
+            due_today
+          </span>
+        )}
+      </div>
 
-      <span className="topic">
-        {topic}
-      </span>
-
-      {isDue && (
-        <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-          Due for Review
+      <div className="flex flex-wrap gap-2 font-mono text-xs">
+        <span
+          className={`rounded-full border px-2 py-1 ${getDifficultyColor(
+            difficulty
+          )}`}
+        >
+          {difficulty.toLowerCase()}
         </span>
+
+        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-muted">
+          {topic.toLowerCase()}
+        </span>
+      </div>
+
+      {description && (
+        <p className="text-sm leading-relaxed text-muted">
+          {description}
+        </p>
       )}
 
-      {description && <p>{description}</p>}
+      {safeHints.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {safeHints
+            .slice(0, hintsShown)
+            .map((hint, index) => (
+              <p
+                key={index}
+                className="rounded-md border border-white/5 bg-white/5 p-2 text-xs leading-relaxed text-muted"
+              >
+                <span className="mr-1 font-mono text-accent">
+                  #{index + 1}
+                </span>
+                {hint}
+              </p>
+            ))}
 
-      {safeHints.slice(0, hintsShown).map((hint, index) => (
-        <p key={index}>
-          <strong>Hint {index + 1}:</strong> {hint}
-        </p>
-      ))}
-
-      <button
-        onClick={revealNextHint}
-        disabled={hintsShown === safeHints.length}
-      >
-        {hintsShown === safeHints.length
-          ? 'All Hints Revealed'
-          : `Reveal Hint (${hintsShown + 1}/${safeHints.length})`}
-      </button>
+          <button
+            onClick={revealNextHint}
+            disabled={hintsShown === safeHints.length}
+            className="text-left font-mono text-xs text-accent transition-colors hover:text-text disabled:cursor-default disabled:text-muted"
+          >
+            {hintsShown === safeHints.length
+              ? 'all_hints_revealed'
+              : `reveal_hint(${hintsShown + 1}/${safeHints.length})`}
+          </button>
+        </div>
+      )}
 
       <Link
         to={`/problem/${slug}`}
-        className="revise-button"
+        className="mt-auto rounded-md bg-accent py-2.5 text-center text-sm font-medium text-bg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
       >
         Revise Now
       </Link>

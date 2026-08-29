@@ -16,12 +16,14 @@ function ProblemDetail() {
   const [verdict, setVerdict] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submissions, setSubmissions] = useState<SubmissionResult[]>([])
+  const [language, setLanguage] = useState('cpp')
 
   useEffect(() => {
     setLoading(true)
     setProblem(null)
     setHintsShown(0)
     setSubmissions([])
+    setLanguage('cpp')
 
     fetch(`${API_URL}/problems/${slug}`)
       .then((res) => {
@@ -54,7 +56,12 @@ function ProblemDetail() {
       }
 
       const data = await res.json()
+
       setSubmissions(data)
+
+      if (data.length > 0 && data[0].language) {
+        setLanguage(data[0].language)
+      }
     } catch (error) {
       console.error(error)
     }
@@ -84,7 +91,7 @@ function ProblemDetail() {
         body: JSON.stringify({
           problem_id: problem!.id,
           code: code,
-          language: 'cpp',
+          language: language,
         }),
       })
 
@@ -196,21 +203,31 @@ function ProblemDetail() {
         </>
       )}
 
-      <button
-        className="revise-button ml-3"
-        onClick={() => {}}
-      >
-        Revise Now
-      </button>
-
       <h2 className="text-2xl font-bold mt-8">
         Your Solution
       </h2>
 
       <div className="mt-4">
+        <label className="block font-medium mb-2">
+          Language
+        </label>
+
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          className="border p-2 rounded"
+        >
+          <option value="cpp">C++</option>
+          <option value="python">Python</option>
+          <option value="java">Java</option>
+          <option value="javascript">JavaScript</option>
+        </select>
+      </div>
+
+      <div className="mt-4">
         <Editor
           height="400px"
-          defaultLanguage="cpp"
+          language={language}
           value={code}
           onChange={(value) => setCode(value ?? '')}
           theme="vs-dark"

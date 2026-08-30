@@ -5,6 +5,7 @@ import type { Problem, SubmissionResult } from './data'
 import { useAuth } from './AuthContext'
 import { API_URL } from './api'
 import { getDifficultyColor } from './utils'
+import Loading from './Loading'
 
 function ProblemDetail() {
   const { slug } = useParams()
@@ -113,13 +114,7 @@ function ProblemDetail() {
   }
 
   if (loading) {
-    return (
-      <div className="mx-auto w-full max-w-3xl px-6 py-12">
-        <p className="font-mono text-sm text-muted">
-          loading_problem...
-        </p>
-      </div>
-    )
+    return <Loading label="loading_problem" />
   }
 
   if (!problem) {

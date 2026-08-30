@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
 import type { TopicAnalytics } from './data'
 import { API_URL } from './api'
+import Loading from './Loading'
 
 function statusColor(status: string) {
   if (status === 'strong') {
@@ -70,13 +71,7 @@ function Analytics() {
   }, [token])
 
   if (loading) {
-    return (
-      <div className="mx-auto w-full max-w-5xl px-6 py-10">
-        <p className="font-mono text-sm text-muted">
-          loading_analytics...
-        </p>
-      </div>
-    )
+    return <Loading label="loading_analytics" />
   }
 
   const strongCount = analytics.filter(
@@ -88,12 +83,13 @@ function Analytics() {
   ).length
 
   const practiceCount = analytics.filter(
-    (item) => item.status !== 'strong' && item.status !== 'weak'
+    (item) =>
+      item.status !== 'strong' &&
+      item.status !== 'weak'
   ).length
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-10">
-
       <div>
         <p className="font-mono text-xs uppercase tracking-wider text-accent">
           analytics
@@ -122,7 +118,6 @@ function Analytics() {
       ) : (
         <>
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-
             <div className="rounded-xl border border-white/10 bg-surface p-5">
               <p className="font-mono text-xs uppercase tracking-wide text-muted">
                 topics
@@ -164,11 +159,9 @@ function Analytics() {
                 topics needing more revision
               </p>
             </div>
-
           </div>
 
           <div className="mt-10">
-
             <div className="flex items-end justify-between gap-4">
               <div>
                 <h2 className="font-display text-xl font-semibold text-text">
@@ -186,14 +179,12 @@ function Analytics() {
             </div>
 
             <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-
               {analytics.map((item) => (
                 <div
                   key={item.topic}
                   className="rounded-xl border border-white/10 bg-surface p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-lg hover:shadow-black/20"
                 >
                   <div className="flex items-start justify-between gap-4">
-
                     <div className="min-w-0">
                       <h3 className="font-display text-lg font-semibold text-text">
                         {item.topic}
@@ -211,11 +202,9 @@ function Analytics() {
                     >
                       {item.status.replaceAll('_', ' ')}
                     </span>
-
                   </div>
 
                   <div className="mt-5">
-
                     <div className="flex items-center justify-between font-mono text-xs">
                       <span className="text-muted">
                         coverage
@@ -239,11 +228,9 @@ function Analytics() {
                         }}
                       />
                     </div>
-
                   </div>
 
                   <div className="mt-4">
-
                     <div className="flex items-center justify-between font-mono text-xs">
                       <span className="text-muted">
                         acceptance
@@ -267,17 +254,13 @@ function Analytics() {
                         }}
                       />
                     </div>
-
                   </div>
-
                 </div>
               ))}
-
             </div>
           </div>
         </>
       )}
-
     </div>
   )
 }

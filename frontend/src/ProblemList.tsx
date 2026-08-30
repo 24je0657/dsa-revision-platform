@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import type { Problem, TopicAnalytics } from './data'
 import ProblemCard from './ProblemCard'
+import Loading from './Loading'
 import { useAuth } from './AuthContext'
 import { API_URL } from './api'
 
@@ -78,13 +79,7 @@ function ProblemList() {
   }, [token])
 
   if (loading) {
-    return (
-      <div className="mx-auto w-full max-w-6xl px-6 py-10">
-        <p className="font-mono text-sm text-muted">
-          loading_problems...
-        </p>
-      </div>
-    )
+    return <Loading label="loading_problems" />
   }
 
   const strongCount = topicStats.filter(
@@ -187,21 +182,16 @@ function ProblemList() {
         </div>
 
         {problems.length === 0 ? (
-          <div className="rounded-xl border border-white/10 bg-surface p-6">
-            <p className="font-mono text-sm text-muted">
-              no_problems_in_library
-            </p>
-
-            <p className="mt-2 text-sm text-muted">
-              Add your first problem to start building your revision
-              library.
+          <div className="rounded-xl border border-dashed border-white/10 py-16 text-center">
+            <p className="text-muted">
+              Your library is empty.
             </p>
 
             <Link
               to="/add-problem"
-              className="mt-4 inline-flex rounded-md bg-accent px-4 py-2 text-sm font-medium text-bg transition-opacity hover:opacity-90"
+              className="mt-2 inline-block text-sm text-accent hover:underline"
             >
-              + Add Problem
+              Add your first problem →
             </Link>
           </div>
         ) : (

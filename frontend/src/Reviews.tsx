@@ -3,6 +3,7 @@ import { useAuth } from './AuthContext'
 import ProblemCard from './ProblemCard'
 import type { DueReview } from './data'
 import { API_URL } from './api'
+import Loading from './Loading'
 
 function Reviews() {
   const { token } = useAuth()
@@ -45,18 +46,11 @@ function Reviews() {
   }, [token])
 
   if (loading) {
-    return (
-      <div className="mx-auto w-full max-w-5xl px-6 py-10">
-        <p className="font-mono text-sm text-muted">
-          loading_reviews...
-        </p>
-      </div>
-    )
+    return <Loading label="loading_reviews" />
   }
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-10">
-
       <div>
         <p className="font-mono text-xs uppercase tracking-wider text-accent">
           reviews

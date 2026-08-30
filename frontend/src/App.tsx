@@ -8,6 +8,7 @@ import Login from './Login'
 import Reviews from './Reviews'
 import Analytics from './Analytics'
 import AddProblem from './AddProblem'
+import Explore from './Explore'
 
 function App() {
   return (
@@ -22,6 +23,11 @@ function App() {
               <ProblemList />
             </ProtectedRoute>
           }
+        />
+
+        <Route
+          path="/explore"
+          element={<Explore />}
         />
 
         <Route
@@ -50,11 +56,12 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route 
+
+        <Route
           path="/add-problem"
           element={
             <ProtectedRoute>
-              <AddProblem/>
+              <AddProblem />
             </ProtectedRoute>
           }
         />

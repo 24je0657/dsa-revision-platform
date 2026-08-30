@@ -20,9 +20,11 @@ function Navbar() {
 
     return `
       transition-colors
-      ${isActive
-        ? 'text-text'
-        : 'text-muted hover:text-text'}
+      ${
+        isActive
+          ? 'text-text'
+          : 'text-muted hover:text-text'
+      }
     `
   }
 
@@ -44,6 +46,14 @@ function Navbar() {
 
         {/* Desktop navigation */}
         <div className="hidden items-center gap-5 font-mono text-sm md:flex">
+          {/* Public link */}
+          <Link
+            to="/explore"
+            className={getLinkClass('/explore')}
+          >
+            explore
+          </Link>
+
           {token ? (
             <>
               <Link
@@ -109,6 +119,16 @@ function Navbar() {
       {menuOpen && (
         <div className="border-t border-white/10 px-4 pb-4 md:hidden">
           <div className="flex flex-col gap-1 pt-2 font-mono text-sm">
+
+            {/* Public link */}
+            <Link
+              to="/explore"
+              onClick={closeMenu}
+              className={`rounded-md px-3 py-2 ${getLinkClass('/explore')}`}
+            >
+              explore
+            </Link>
+
             {token ? (
               <>
                 <Link
@@ -161,6 +181,7 @@ function Navbar() {
                 </Link>
               </>
             )}
+
           </div>
         </div>
       )}

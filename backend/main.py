@@ -18,6 +18,8 @@ from schemas import (
     DueReview,
     ProblemWithProgress,
     TopicAnalytics,
+    AddToLibraryRequest,
+    ExploreProblem,
 )
 
 from models import (
@@ -142,12 +144,20 @@ def create_submission(
     )
 
     return db_submission
-@app.get("/problems/{slug}/submissions", response_model=list[SubmissionResult])
+@app.get(
+    "/problems/{slug}/submissions",
+    response_model=list[SubmissionResult]
+)
 def get_submissions_for_problem(
     slug: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(get_current_user),
 ):
-    problem = db.query(ProblemDB).filter(ProblemDB.slug == slug).first()
+    problem = (
+        db.query(ProblemDB)
+        .filter(ProblemDB.slug == slug)
+        .first()
+    )
 
     if not problem:
         raise HTTPException(
@@ -157,8 +167,13 @@ def get_submissions_for_problem(
 
     return (
         db.query(SubmissionDB)
-        .filter(SubmissionDB.problem_id == problem.id)
-        .order_by(SubmissionDB.submitted_at.desc())
+        .filter(
+            SubmissionDB.problem_id == problem.id,
+            SubmissionDB.user_id == current_user.id,
+        )
+        .order_by(
+            SubmissionDB.submitted_at.desc()
+        )
         .all()
     )
 
@@ -425,5 +440,60 @@ def get_problems(
             "hints": problem.hints,
             "next_review_due": progress.next_review_due if progress else None,
             "interval_days": progress.interval_days if progress else None,
+        })
+    return result
+@app.post("/user-problems")
+def add_to_library(
+    payload: AddToLibraryRequest,
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(get_current_user),
+):
+    problem = db.query(ProblemDB).filter(ProblemDB.id == payload.problem_id).first()
+    if not problem:
+        raise HTTPException(status_code=404, detail="Problem not found")
+
+    existing = (
+        db.query(UserProblemDB)
+        .filter(
+            UserProblemDB.user_id == current_user.id,
+            UserProblemDB.problem_id == payload.problem_id,
+        )
+        .first()
+    )
+    if existing:
+        return {"message": "Already in library"}
+
+    db.add(UserProblemDB(user_id=current_user.id, problem_id=payload.problem_id))
+    db.commit()
+    return {"message": "Added to library"}
+
+
+@app.get("/explore", response_model=list[ExploreProblem])
+def get_explore_problems(
+    db: Session = Depends(get_db),
+    current_user: UserDB | None = Depends(get_current_user_optional),
+):
+    problems = db.query(ProblemDB).all()
+
+    in_library_ids = set()
+    if current_user:
+        rows = (
+            db.query(UserProblemDB.problem_id)
+            .filter(UserProblemDB.user_id == current_user.id)
+            .all()
+        )
+        in_library_ids = {r[0] for r in rows}
+
+    result = []
+    for problem in problems:
+        result.append({
+            "id": problem.id,
+            "slug": problem.slug,
+            "title": problem.title,
+            "difficulty": problem.difficulty,
+            "topic": problem.topic,
+            "description": problem.description,
+            "hints": problem.hints,
+            "in_library": problem.id in in_library_ids,
         })
     return result

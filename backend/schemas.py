@@ -77,3 +77,9 @@ class ProblemCreate(BaseModel):
     hints: list[str] | None = None
     solution_code: str | None = None
     language: str | None = None
+
+class ExploreProblem(Problem):
+    in_library: bool = False
+
+class AddToLibraryRequest(BaseModel):
+    problem_id: int

@@ -8,13 +8,11 @@ from fastapi.testclient import TestClient
 from database import Base, get_db
 from main import app
 
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
 
-DB_PASSWORD = os.environ["DB_PASSWORD"]
-
-TEST_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL",
-    f"postgresql://postgres:{DB_PASSWORD}@localhost:5433/dsa_platform_test",
-)
+if not TEST_DATABASE_URL:
+    DB_PASSWORD = os.environ["DB_PASSWORD"]
+    TEST_DATABASE_URL = f"postgresql://postgres:{DB_PASSWORD}@localhost:5433/dsa_platform_test"
 
 engine = create_engine(TEST_DATABASE_URL)
 TestingSessionLocal = sessionmaker(

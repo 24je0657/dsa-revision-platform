@@ -1,5 +1,5 @@
 # Intelligent DSA Revision & Practice Platform
-![Backend Tests](https://github.com/24je0657/dsa-revision-platform/actions/workflows/backend-tests.yml/badge.svg)
+![CI](https://github.com/24je0657/dsa-revision-platform/actions/workflows/ci.yml/badge.svg)
 
 A personalized, spaced-repetition coding practice platform that answers a more honest question than *"how many problems have I solved?"* — namely, **"how many of the problems I've previously learned can I still independently solve today?"**
 

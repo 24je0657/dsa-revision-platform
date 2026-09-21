@@ -93,30 +93,38 @@ function AddProblem() {
         <div className="flex flex-col gap-5">
 
           <div>
-            <label className="mb-1.5 block font-mono text-xs text-muted">
+            <label
+              htmlFor="title"
+              className="mb-1.5 block font-mono text-xs text-muted"
+            >
               title
             </label>
 
             <input
+              id="title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent"
+              className="w-full rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
               placeholder="e.g. Sliding Window Maximum"
               required
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block font-mono text-xs text-muted">
+            <label
+              htmlFor="leetcode-url"
+              className="mb-1.5 block font-mono text-xs text-muted"
+            >
               leetcode_url
             </label>
 
             <input
+              id="leetcode-url"
               type="url"
               value={leetcodeUrl}
               onChange={(e) => setLeetcodeUrl(e.target.value)}
-              className="w-full rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent"
+              className="w-full rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
               placeholder="https://leetcode.com/problems/..."
             />
           </div>
@@ -124,14 +132,18 @@ function AddProblem() {
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
             <div>
-              <label className="mb-1.5 block font-mono text-xs text-muted">
+              <label
+                htmlFor="difficulty"
+                className="mb-1.5 block font-mono text-xs text-muted"
+              >
                 difficulty
               </label>
 
               <select
+                id="difficulty"
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent"
+                className="w-full rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
                 required
               >
                 <option value="Easy">Easy</option>
@@ -141,15 +153,19 @@ function AddProblem() {
             </div>
 
             <div>
-              <label className="mb-1.5 block font-mono text-xs text-muted">
+              <label
+                htmlFor="topic"
+                className="mb-1.5 block font-mono text-xs text-muted"
+              >
                 topic
               </label>
 
               <input
+                id="topic"
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                className="w-full rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent"
+                className="w-full rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="e.g. Arrays"
                 required
               />
@@ -158,28 +174,36 @@ function AddProblem() {
           </div>
 
           <div>
-            <label className="mb-1.5 block font-mono text-xs text-muted">
+            <label
+              htmlFor="description"
+              className="mb-1.5 block font-mono text-xs text-muted"
+            >
               description
             </label>
 
             <textarea
+              id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full resize-y rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent"
+              className="w-full resize-y rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
               rows={5}
               placeholder="Optional problem description"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block font-mono text-xs text-muted">
+            <label
+              htmlFor="solution-code"
+              className="mb-1.5 block font-mono text-xs text-muted"
+            >
               solution_code
             </label>
 
             <textarea
+              id="solution-code"
               value={solutionCode}
               onChange={(e) => setSolutionCode(e.target.value)}
-              className="w-full resize-y rounded-md border border-white/10 bg-bg px-3 py-2.5 font-mono text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent"
+              className="w-full resize-y rounded-md border border-white/10 bg-bg px-3 py-2.5 font-mono text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
               rows={12}
               placeholder="Optional: paste your previous solution"
             />
@@ -201,7 +225,7 @@ function AddProblem() {
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="font-mono text-sm text-muted transition-colors hover:text-text"
+              className="rounded-sm font-mono text-sm text-muted transition-colors hover:text-text focus:outline-none focus:ring-2 focus:ring-accent"
             >
               cancel
             </button>
@@ -209,7 +233,7 @@ function AddProblem() {
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-40"
             >
               {submitting ? 'adding_problem…' : 'add_problem'}
             </button>

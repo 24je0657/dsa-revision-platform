@@ -19,7 +19,11 @@ function Navbar() {
     const isActive = location.pathname === path
 
     return `
+      rounded-sm
       transition-colors
+      focus:outline-none
+      focus:ring-2
+      focus:ring-accent
       ${
         isActive
           ? 'text-text'
@@ -39,13 +43,14 @@ function Navbar() {
         <Link
           to="/"
           onClick={closeMenu}
-          className="font-display text-xl font-semibold tracking-tight text-text"
+          className="rounded-sm font-display text-xl font-semibold tracking-tight text-text focus:outline-none focus:ring-2 focus:ring-accent"
         >
           DSA<span className="text-accent">::</span>Revise
         </Link>
 
         {/* Desktop navigation */}
         <div className="hidden items-center gap-5 font-mono text-sm md:flex">
+
           {/* Public link */}
           <Link
             to="/explore"
@@ -79,7 +84,7 @@ function Navbar() {
 
               <button
                 onClick={handleLogout}
-                className="text-muted transition-colors hover:text-weak"
+                className="rounded-sm text-muted transition-colors hover:text-weak focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 log_out()
               </button>
@@ -95,7 +100,7 @@ function Navbar() {
 
               <Link
                 to="/signup"
-                className="rounded-md bg-accent px-4 py-2 font-medium text-bg transition-all hover:-translate-y-0.5 hover:opacity-90"
+                className="rounded-md bg-accent px-4 py-2 font-medium text-bg transition-all hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 sign_up
               </Link>
@@ -107,8 +112,8 @@ function Navbar() {
         <button
           type="button"
           onClick={() => setMenuOpen((prev) => !prev)}
-          className="rounded-md border border-white/10 px-3 py-2 font-mono text-xl leading-none text-text transition-colors hover:border-accent hover:text-accent md:hidden"
-          aria-label="Toggle menu"
+          className="rounded-md border border-white/10 px-3 py-2 font-mono text-xl leading-none text-text transition-colors hover:border-accent hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent md:hidden"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
         >
           {menuOpen ? '✕' : '☰'}
@@ -157,7 +162,7 @@ function Navbar() {
 
                 <button
                   onClick={handleLogout}
-                  className="rounded-md px-3 py-2 text-left text-muted transition-colors hover:text-weak"
+                  className="rounded-md px-3 py-2 text-left text-muted transition-colors hover:text-weak focus:outline-none focus:ring-2 focus:ring-accent"
                 >
                   log_out()
                 </button>
@@ -175,7 +180,7 @@ function Navbar() {
                 <Link
                   to="/signup"
                   onClick={closeMenu}
-                  className="rounded-md px-3 py-2 font-medium text-accent transition-colors hover:text-text"
+                  className="rounded-md px-3 py-2 font-medium text-accent transition-colors hover:text-text focus:outline-none focus:ring-2 focus:ring-accent"
                 >
                   sign_up
                 </Link>

@@ -36,7 +36,7 @@ function ProblemCard({
   }
 
   return (
-    <div className="w-full max-w-sm rounded-xl border border-white/10 bg-surface p-5 flex flex-col gap-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-black/20">
+    <div className="flex w-full max-w-sm flex-col gap-4 rounded-xl border border-white/10 bg-surface p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-black/20">
       <div className="flex items-start justify-between gap-3">
         <h2 className="min-w-0 font-display text-lg font-semibold leading-tight text-text">
           {title}
@@ -88,7 +88,7 @@ function ProblemCard({
           <button
             onClick={revealNextHint}
             disabled={hintsShown === safeHints.length}
-            className="text-left font-mono text-xs text-accent transition-colors hover:text-text disabled:cursor-default disabled:text-muted"
+            className="rounded-sm text-left font-mono text-xs text-accent transition-colors hover:text-text focus:outline-none focus:ring-2 focus:ring-accent disabled:cursor-default disabled:text-muted"
           >
             {hintsShown === safeHints.length
               ? 'all_hints_revealed'
@@ -99,7 +99,7 @@ function ProblemCard({
 
       <Link
         to={`/problem/${slug}`}
-        className="mt-auto rounded-md bg-accent py-2.5 text-center text-sm font-medium text-bg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
+        className="mt-auto rounded-md bg-accent py-2.5 text-center text-sm font-medium text-bg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent"
       >
         Revise Now
       </Link>

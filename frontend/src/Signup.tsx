@@ -57,31 +57,39 @@ function Signup() {
           className="flex flex-col gap-4"
         >
           <div>
-            <label className="mb-1.5 block font-mono text-xs text-muted">
+            <label
+              htmlFor="email"
+              className="mb-1.5 block font-mono text-xs text-muted"
+            >
               email
             </label>
 
             <input
+              id="email"
               type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent"
+              className="w-full rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
               required
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block font-mono text-xs text-muted">
+            <label
+              htmlFor="password"
+              className="mb-1.5 block font-mono text-xs text-muted"
+            >
               password
             </label>
 
             <input
+              id="password"
               type="password"
               placeholder="Create a password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent"
+              className="w-full rounded-md border border-white/10 bg-bg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
               required
             />
           </div>
@@ -96,7 +104,7 @@ function Signup() {
 
           <button
             type="submit"
-            className="mt-1 rounded-md bg-accent py-2.5 text-sm font-medium text-bg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
+            className="mt-1 rounded-md bg-accent py-2.5 text-sm font-medium text-bg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent"
           >
             Sign Up
           </button>
@@ -106,7 +114,7 @@ function Signup() {
           Already have an account?{' '}
           <Link
             to="/login"
-            className="text-accent transition-colors hover:text-text hover:underline"
+            className="rounded-sm text-accent transition-colors hover:text-text hover:underline focus:outline-none focus:ring-2 focus:ring-accent"
           >
             Log in
           </Link>

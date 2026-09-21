@@ -127,7 +127,7 @@ function ProblemDetail() {
 
           <Link
             to="/"
-            className="font-mono text-sm text-accent transition-colors hover:text-text"
+            className="rounded-sm font-mono text-sm text-accent transition-colors hover:text-text focus:outline-none focus:ring-2 focus:ring-accent"
           >
             ← back_to_problems
           </Link>
@@ -149,7 +149,7 @@ function ProblemDetail() {
 
       <Link
         to="/"
-        className="font-mono text-sm text-accent transition-colors hover:text-text"
+        className="rounded-sm font-mono text-sm text-accent transition-colors hover:text-text focus:outline-none focus:ring-2 focus:ring-accent"
       >
         ← back_to_problems
       </Link>
@@ -218,7 +218,7 @@ function ProblemDetail() {
             <button
               onClick={revealNextHint}
               disabled={hintsShown === safeHints.length}
-              className="mt-4 font-mono text-sm text-accent transition-colors hover:text-text disabled:cursor-default disabled:text-muted"
+              className="mt-4 rounded-sm font-mono text-sm text-accent transition-colors hover:text-text focus:outline-none focus:ring-2 focus:ring-accent disabled:cursor-default disabled:text-muted"
             >
               {hintsShown === safeHints.length
                 ? 'all_hints_revealed'
@@ -237,7 +237,7 @@ function ProblemDetail() {
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="rounded-md border border-white/10 bg-surface px-3 py-2 font-mono text-sm text-text outline-none transition-colors focus:border-accent"
+            className="rounded-md border border-white/10 bg-surface px-3 py-2 font-mono text-sm text-text outline-none transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
           >
             <option value="cpp">C++</option>
             <option value="python">Python</option>
@@ -260,7 +260,7 @@ function ProblemDetail() {
           <button
             onClick={handleSubmit}
             disabled={submitting || !token}
-            className="rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-all hover:-translate-y-0.5 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-bg transition-all hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-40"
           >
             {submitting ? 'Submitting…' : 'Submit'}
           </button>
@@ -269,7 +269,7 @@ function ProblemDetail() {
             <p className="text-sm text-muted">
               <Link
                 to="/login"
-                className="text-accent transition-colors hover:text-text hover:underline"
+                className="rounded-sm text-accent transition-colors hover:text-text hover:underline focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 log_in
               </Link>{' '}

@@ -281,6 +281,7 @@ function ProblemDetail() {
         {verdict && (
           <div className="mt-4 rounded-lg border border-white/10 bg-surface px-4 py-3">
             <p
+              aria-live="polite"
               className={`font-mono text-sm font-medium ${
                 verdict === 'Accepted'
                   ? 'text-strong'

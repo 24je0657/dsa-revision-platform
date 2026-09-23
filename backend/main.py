@@ -442,6 +442,36 @@ def get_problems(
             "interval_days": progress.interval_days if progress else None,
         })
     return result
+@app.get("/problems/{slug}/related", response_model=list[Problem])
+def get_related_problems(
+    slug: str,
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(get_current_user),
+):
+    problem = db.query(ProblemDB).filter(ProblemDB.slug == slug).first()
+
+    if not problem:
+        raise HTTPException(
+            status_code=404,
+            detail="Problem not found"
+        )
+
+    library_ids = {
+        row[0]
+        for row in db.query(UserProblemDB.problem_id)
+        .filter(UserProblemDB.user_id == current_user.id)
+        .all()
+    }
+
+    query = db.query(ProblemDB).filter(
+        ProblemDB.topic == problem.topic,
+        ProblemDB.id != problem.id,
+    )
+
+    if library_ids:
+        query = query.filter(~ProblemDB.id.in_(library_ids))
+
+    return query.limit(4).all()
 @app.post("/user-problems")
 def add_to_library(
     payload: AddToLibraryRequest,

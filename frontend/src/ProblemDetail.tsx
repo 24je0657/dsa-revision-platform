@@ -19,6 +19,8 @@ function ProblemDetail() {
   const [submitting, setSubmitting] = useState(false)
   const [submissions, setSubmissions] = useState<SubmissionResult[]>([])
   const [language, setLanguage] = useState('cpp')
+  const [related, setRelated] = useState<Problem[]>([])
+  const [addingRelatedId, setAddingRelatedId] = useState<number | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -26,6 +28,7 @@ function ProblemDetail() {
     setHintsShown(0)
     setSubmissions([])
     setLanguage('cpp')
+    setRelated([])
 
     fetch(`${API_URL}/problems/${slug}`)
       .then((res) => {
@@ -75,6 +78,19 @@ function ProblemDetail() {
     }
   }, [problem])
 
+  useEffect(() => {
+    if (!problem || !token) return
+
+    fetch(`${API_URL}/problems/${problem.slug}/related`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => (res.ok ? res.json() : []))
+      .then(setRelated)
+      .catch(() => setRelated([]))
+  }, [problem, token])
+
   async function handleSubmit() {
     if (!token) {
       return
@@ -88,7 +104,7 @@ function ProblemDetail() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           problem_id: problem!.id,
@@ -110,6 +126,37 @@ function ProblemDetail() {
       console.error(error)
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function handleAddRelated(problemId: number) {
+    if (!token) return
+
+    setAddingRelatedId(problemId)
+
+    try {
+      const res = await fetch(`${API_URL}/user-problems`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          problem_id: problemId,
+        }),
+      })
+
+      if (!res.ok) {
+        throw new Error('Failed to add problem to library')
+      }
+
+      setRelated((prev) =>
+        prev.filter((p) => p.id !== problemId)
+      )
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setAddingRelatedId(null)
     }
   }
 
@@ -146,7 +193,6 @@ function ProblemDetail() {
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-10">
-
       <Link
         to="/"
         className="rounded-sm font-mono text-sm text-accent transition-colors hover:text-text focus:outline-none focus:ring-2 focus:ring-accent"
@@ -202,17 +248,19 @@ function ProblemDetail() {
         ) : (
           <>
             <div className="mt-4 flex flex-col gap-2">
-              {safeHints.slice(0, hintsShown).map((hint, index) => (
-                <p
-                  key={index}
-                  className="rounded-lg border border-white/10 bg-surface px-4 py-3 text-sm leading-relaxed text-muted"
-                >
-                  <span className="mr-2 font-mono text-accent">
-                    #{index + 1}
-                  </span>
-                  {hint}
-                </p>
-              ))}
+              {safeHints
+                .slice(0, hintsShown)
+                .map((hint, index) => (
+                  <p
+                    key={index}
+                    className="rounded-lg border border-white/10 bg-surface px-4 py-3 text-sm leading-relaxed text-muted"
+                  >
+                    <span className="mr-2 font-mono text-accent">
+                      #{index + 1}
+                    </span>
+                    {hint}
+                  </p>
+                ))}
             </div>
 
             <button
@@ -344,6 +392,48 @@ function ProblemDetail() {
         </div>
       </section>
 
+      {related.length > 0 && (
+        <section className="mt-10">
+          <h2 className="font-display text-xl font-semibold text-text">
+            Related Problems
+          </h2>
+
+          <p className="mt-1 text-sm text-muted">
+            More {problem.topic} problems to reinforce this pattern.
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-4">
+            {related.map((p) => (
+              <div
+                key={p.id}
+                className="flex w-full flex-col gap-2 rounded-xl border border-white/10 bg-surface p-4 sm:w-64"
+              >
+                <h3 className="font-display font-semibold text-text">
+                  {p.title}
+                </h3>
+
+                <span
+                  className={`self-start rounded-full border px-2 py-1 font-mono text-xs ${getDifficultyColor(
+                    p.difficulty
+                  )}`}
+                >
+                  {p.difficulty.toLowerCase()}
+                </span>
+
+                <button
+                  onClick={() => handleAddRelated(p.id)}
+                  disabled={addingRelatedId === p.id}
+                  className="mt-1 rounded-md bg-accent py-1.5 text-sm font-medium text-bg transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {addingRelatedId === p.id
+                    ? 'adding…'
+                    : '+ Add'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }
